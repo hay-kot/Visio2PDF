@@ -63,7 +63,6 @@ function validateEntry(entry_array) {
   var falseCheck;
   entry_array.forEach(function (item, index, array) {
     if (item === "") {
-      console.log("Value is False");
       falseCheck = false;
     } else if (item === "undefined") {
       falseCheck = false;

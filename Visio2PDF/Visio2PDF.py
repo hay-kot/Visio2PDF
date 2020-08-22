@@ -3,6 +3,7 @@ import random
 import subprocess
 from datetime import datetime
 from pathlib import Path
+from time import sleep
 from tkinter import Tk, filedialog
 
 import eel
@@ -22,6 +23,7 @@ cwd = Path(__file__).parent
 
 eel_path = os.path.join(cwd, "web")
 eel.init(eel_path)
+external_converter = os.path.join(cwd, "OfficeToPDF.exe")
 
 
 @eel.expose
@@ -106,12 +108,12 @@ def convert_visio(file_dir, save_dir, enable_tagging, tag):
             else:
                 save_name = os.path.join(save_dir, f"{name}.pdf")
 
-            external_converter = os.path.join(cwd, "OfficeToPDF.exe")
-
             subprocess.run([external_converter, target, save_name], check=True)
 
             if enable_tagging:
                 mark_pdf(watermark, save_name)
+            else:
+                sleep(0.5)
 
 
 def merge_pdfs(pdf_dir, new_name, coversheet, enable_tagging, tag):
@@ -166,10 +168,12 @@ def main(
     visio_dir = Path(visio_dir)
 
     # Set Save Path
-    if version_tag != None:
+    if insert_version_tag == True:
         save_dir = os.path.join(visio_dir, "PDFs", version_tag)
     else:
-        save_dir = os.path.join(visio_dir, "PDFs")
+        dateTimeObj = datetime.now()
+        timestampstr = dateTimeObj.strftime("%m-%d-%Y")
+        save_dir = os.path.join(visio_dir, "PDFs", timestampstr)
 
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
@@ -184,7 +188,7 @@ def main(
     if os.path.isfile(coversheet):
         log(f"Setting Coversheet: {coversheet}")
         cover_path = os.path.join(save_dir, "CoverSheet.pdf")
-        external_converter = os.path.join(cwd, "OfficeToPDF.exe")
+
         subprocess.run([external_converter, coversheet, cover_path], check=True)
     else:
         log("No Coversheet included, Skipping...")
