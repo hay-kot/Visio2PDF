@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Drawings Packager</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/bootstrap-reboot.css">
+    <script type="text/javascript" src="/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.bundle.js"></script>
+  </head>
+  <body>
+    <div>
+      <img src="pdf.png" class="rounded float-left" style="width: 6%; height: 6%; vertical-align:middle;">
+      <h3>Document Packager</h3>
+    </div>
+    <form style="width: 500px; margin: auto">
+      <div id="required_fields_alert" class="alert alert-danger" role="alert" style="display: none;">
+        ERROR: Please fill out all required values!
+      </div>
+      <div>
+        <div class="form-group">
+          <label for="sys_name">System Name used for Merged PDF</label>
+          <input required class="form-control" id="sys_name" placeholder="Required: Building 2 A-RTU-12"></input> 
+        </div>  
+      </div>
+      <div class="form-row">
+        <div class="col-7">
+          <label for="engineer_name">Author</label>
+          <input required class="form-control" id="engineer_name" placeholder="Required: John C. Doe"></input> 
+        </div>
+        <div class="col">
+          <label for="version_tag">Version Tag</label>
+          <input required class="form-control" id="version_tag" placeholder="Required: v1.01"></input>
+        </div>
+      </div>
+      <div>
+        <div class="custom-control custom-checkbox">
+          <input onclick="toggleVersioning()" type="checkbox" class="custom-control-input" id="enable_tagging" checked="checked">
+          <label class="custom-control-label" for="enable_tagging">Version Tag and Watermark</label>
+        </div>
+      </div>
+      <br>
+      <div>
+        <div>
+          <div>
+            <label for="dir_name">Main Directory</label>
+          </div>
+          <div class="input-group">
+            <input class="form-control" id="dir_name" placeholder="Required: Path to Directory">
+            <a class="btn btn-outline-danger" onclick="getFolder()" value="Input">Browse</a>
+          </div>
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="merge_subdirs">
+            <label class="custom-control-label" for="merge_subdirs">Include and merge subdirectories</label>
+          </div>
+        </div>
+        <br>
+        <div>
+          <label for="cover_name">Cover Sheet</label>
+        </div>
+        <div class="input-group">
+          <input class="form-control" id="cover_name" placeholder="Optional: Path To File"></input>
+          <a class="btn btn-outline-danger" onclick="getCover()" value="Input">Browse</a>
+        </div>
+      </div>
+      <br>
+      <div>
+        <div id="convert_btn" class="form-group">
+          <a class="btn btn-danger btn-lg btn-block" id="visio_button" type=submit onclick="convertVisio()">Convert</a>
+        </div>
+        <div class="alert alert-success" role="success" id="msg" style="display: none;">
+          Action Completed Successfully!
+        </div>
+        <div id="working_indicator" style="display: none;">
+          <button class="btn btn-success" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span class="sr-only">Loading...</span>
+          </button>
+        </div>
+        <br>
+      </div>
+      <div>
+        <div>
+          <a type="button" class="btn btn-secondary btn-sm" onclick="showLog()">Show Log</a>
+        </div>
+        <br>
+        <div id="output" style="display: none">
+          <textarea class="form-control" wrap="off" readonly style="font-size: 15px; resize: vertical; max-height: 150px; height: 150px"></textarea>
+        </div>
+    </div>
+    </form>
+  </body>
+</html>
