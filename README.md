@@ -17,7 +17,7 @@ This is a small GUI used for batch converting Microsoft Visio files and packagin
 ## Getting Started
 
 ##### Running The Application
-[Download](https://github.com/hay-kot/Visio2PDF/releases/download/v0.1/Visio2PDF.v0.1.zip) and unzip the archive, locate Visio2PDF.exe and execute.
+[Download](https://github.com/hay-kot/Visio2PDF/releases/tag/v0.2) and unzip the archive, locate Visio2PDF.exe and execute.
 
 ![](images/ui.png)
 
