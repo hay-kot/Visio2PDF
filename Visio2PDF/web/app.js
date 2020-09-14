@@ -105,6 +105,7 @@ async function convertVisio() {
   let sys_name = document.getElementById("sys_name").value;
   let version_tag = document.getElementById("version_tag").value;
   let engineer_name = document.getElementById("engineer_name").value;
+  let include_subdir = document.getElementById("merge_subdirs").checked;
 
   let insert_version_tag = document.getElementById("enable_tagging").checked;
 
@@ -114,7 +115,8 @@ async function convertVisio() {
     sys_name,
     insert_version_tag,
     version_tag,
-    engineer_name
+    engineer_name,
+    include_subdir
   );
   document.getElementById("working_indicator").style.display = "block";
 }

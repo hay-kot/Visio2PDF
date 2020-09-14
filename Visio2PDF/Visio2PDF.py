@@ -159,6 +159,7 @@ def main(
     insert_version_tag=False,
     version_tag=None,
     engineer_name="undefined",
+    include_subdir=False,
 ):
     log("Starting...")
 
@@ -179,9 +180,30 @@ def main(
         os.makedirs(save_dir)
         log(f"Creating Save Directory: {save_dir}")
 
-    convert_visio(
-        visio_dir, save_dir, insert_version_tag, version_tag,
-    )
+    if include_subdir == True:
+        visio_dir_list = []
+
+        for item in os.walk(visio_dir):
+            if "PDFs" in item[0]:
+                continue
+            else:
+                visio_dir_list.append(item[0])
+
+        for visio_dir in visio_dir_list:
+            convert_visio(
+                visio_dir,
+                save_dir,
+                insert_version_tag,
+                version_tag,
+            )
+
+    elif include_subdir == False:
+        convert_visio(
+            visio_dir,
+            save_dir,
+            insert_version_tag,
+            version_tag,
+        )
 
     # Cover Sheet
     cover_path = "not a file"
