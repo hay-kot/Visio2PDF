@@ -22,7 +22,7 @@ This is a small GUI used for batch converting Microsoft Visio files and packagin
 
 [Download](https://github.com/hay-kot/Visio2PDF/releases/tag/v.03) and unzip the archive, locate Visio2PDF.exe and execute.
 
-![](images/ui2.png){width=50%, height=50%}
+![](images/ui2.png){width=50%}
 
 ##### Using the Application
 
