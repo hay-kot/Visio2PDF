@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Drawings Packager</title>
+    <title>Visio2PDF</title>
     <script type="text/javascript" src="/eel.js"></script>
     <script type="text/javascript" src="app.js"></script>
     <link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/bootstrap-reboot.css">
+    <link rel="stylesheet" href="/css/main.css">
     <script type="text/javascript" src="/js/bootstrap.js"></script>
     <script type="text/javascript" src="/js/bootstrap.bundle.js"></script>
   </head>
   <body>
-    <div>
-      <img src="pdf.png" class="rounded float-left" style="width: 6%; height: 6%; vertical-align:middle;">
-      <div class="container align-self-center" style="margin: auto;">
-        <h3>Document Packager</h3>
+    <div class="title-background">
+      <div style="width: 500px; margin: auto">
+        <img src="pdf.png" class="rounded float-left" style="width: 15%; height: 15%; vertical-align:middle; padding: 5px;">
+        <h3 class="main-title">Visio2PDF Converter</h3>
       </div>
+    </div>
     </div>
     <form style="width: 500px; margin: auto">
       <div id="required_fields_alert" class="alert alert-danger" role="alert" style="display: none;">
@@ -67,31 +69,30 @@
         </div>
       </div>
       <br>
+      <!-- Buttons / Alerts -->
       <div>
-        <div id="convert_btn" class="form-group">
+        <div id="convert_btn" class="form-group" style="display: block;">
           <a class="btn btn-danger btn-lg btn-block" id="visio_button" type=submit onclick="convertVisio()">Convert</a>
         </div>
-        <div class="alert alert-success" role="success" id="msg" style="display: none;">
-          Action Completed Successfully!
+          <div class="form-group">
+            <div id="working_indicator" style="display: none;">
+              <button class="btn btn-success btn-lg btn-block" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Working...
+              </button>
+            </div>
+            <div class="alert alert-success" role="success" id="msg" style="display: none;">
+              Action Completed Successfully!
+            </div>
         </div>
-        <div class="d-flex justify-content-center">
-          <div id="working_indicator" style="display: none;">
-            <button class="btn btn-success" type="button" disabled>
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Working...
-            </button>
-          </div>
-        </div>
-
-        <br>
-      </div>
+      <br>
       <div>
         <div>
           <a type="button" class="btn btn-secondary btn-sm" onclick="showLog()">Show Log</a>
         </div>
         <br>
         <div id="output" style="display: none">
-          <textarea class="form-control" wrap="off" readonly style="font-size: 15px; resize: vertical; max-height: 150px; height: 150px"></textarea>
+          <textarea class="form-control" wrap="off" readonly style="font-size: 20px; resize: vertical; max-height: 200px; height: 200px"></textarea>
         </div>
     </div>
     </form>

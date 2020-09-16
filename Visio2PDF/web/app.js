@@ -118,6 +118,7 @@ async function convertVisio() {
     engineer_name,
     include_subdir
   );
+  document.getElementById("convert_btn").style.display = "none";
   document.getElementById("working_indicator").style.display = "block";
 }
 
@@ -138,5 +139,12 @@ function putMessageInOutput(message) {
 eel.expose(signalPackagingComplete);
 function signalPackagingComplete(successful) {
   setPackagingComplete(successful);
+
   window.scrollTo(0, document.body.scrollHeight);
+}
+
+eel.expose(toggleButtons);
+function toggleButtons() {
+  document.getElementById("convert_btn").style.display = "block";
+  document.getElementById("working_indicator").style.display = "none";
 }

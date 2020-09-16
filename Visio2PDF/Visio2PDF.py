@@ -13,7 +13,6 @@ from reportlab.lib.pagesizes import landscape
 from reportlab.pdfgen import canvas
 
 """
-TODO: Create Option for subdirectory converting
 TODO: Dynamically set watermark page size
 TODO: Add Support for addiitonal file types in the Microsoft family ( Probably want to include subdirectory support first)
 """
@@ -222,6 +221,7 @@ def main(
     log("Process Complete")
 
     eel.setMsgVisible()
+    eel.toggleButtons()
 
     os.startfile(merged_pdf)
 

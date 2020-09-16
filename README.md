@@ -5,13 +5,14 @@ This is a small GUI used for batch converting Microsoft Visio files and packagin
 ## Features
 
 * Convert entire directory of visio files into both single and merged PDFs.
+* Optional conversion for visio files in subdirectories
 * Support watermark on additional page sizes.
 * Optional Coversheet (should work with any MS Office file)
 * Optional version tagging with watermark
 
 **TODOs**:
 * Support for all Microsoft file formats
-* Support for inclduing subdirectories in converting/merging
+* <s>Support for inclduing subdirectories in converting/merging</s> - Added in v0.3
 * Backup Visio files prior to converting
 
 ## Getting Started
