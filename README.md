@@ -58,4 +58,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - UI logging borrowed from [auto-py-to-exe](https://github.com/brentvollebregt/auto-py-to-exe)
 - Packaged with [auto-py-to-exe](https://github.com/brentvollebregt/auto-py-to-exe)
 - Random stack overflow answers. :thumbsup:
-- <div>Icons made by <a href="https://www.flaticon.com/authors/dimitry-miroliubov" title="Dimitry Miroliubov">Dimitry Miroliubov</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+- <div>PDF Icon made by <a href="https://www.flaticon.com/authors/dimitry-miroliubov" title="Dimitry Miroliubov">Dimitry Miroliubov</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
