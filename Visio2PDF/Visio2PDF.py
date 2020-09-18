@@ -18,11 +18,11 @@ TODO: Add Support for addiitonal file types in the Microsoft family ( Probably w
 """
 
 
-cwd = Path(__file__).parent
+CWD = Path(__file__).parent
 
-eel_path = os.path.join(cwd, "web")
+eel_path = os.path.join(CWD, "web")
 eel.init(eel_path)
-external_converter = os.path.join(cwd, "OfficeToPDF.exe")
+external_converter = os.path.join(CWD, "OfficeToPDF.exe")
 
 
 @eel.expose
@@ -69,7 +69,7 @@ def create_watermark(engineer_name, version_tag, system_name):
     timestampstr = dateTimeObj.strftime("%m/%d/%Y")
     watermark = f"          VERSION: {version_tag}           SYSTEM: {system_name}           AUTHOR: {engineer_name}           DATE: {timestampstr}"
 
-    c = canvas.Canvas(os.path.join(cwd, "watermark.pdf"))
+    c = canvas.Canvas(os.path.join(CWD, "watermark.pdf"))
     c.setPageSize(landscape((792, 1224)))
     c.setFontSize(22)
     c.setFont("Helvetica", 8)
@@ -96,7 +96,7 @@ def mark_pdf(watermark_file, input_pdf):
 
 
 def convert_visio(file_dir, save_dir, enable_tagging, tag):
-    watermark = os.path.join(cwd, "watermark.pdf")
+    watermark = os.path.join(CWD, "watermark.pdf")
     for files in os.listdir(file_dir):
         name, extension = os.path.splitext(files)
         if extension == ".vsdx" or extension == ".vsd":
