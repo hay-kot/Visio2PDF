@@ -6,3 +6,10 @@
 .title-background {
   background-color: #313032;
 }
+
+.app-version {
+  color: white;
+  opacity: 50%;
+  text-align: right;
+  font-size: 11px;
+}

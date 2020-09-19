@@ -133,7 +133,7 @@ function putMessageInOutput(message) {
   // Set the correct height to fit all the output and then scroll to the bottom
   // outputNode.style.height = 'auto';
   outputNode.style.height = outputNode.scrollHeight + 10 + "px";
-  window.scrollTo(0, document.body.scrollHeight);
+  // window.scrollTo(0, document.body.scrollHeight);
 }
 
 eel.expose(signalPackagingComplete);
@@ -147,4 +147,9 @@ eel.expose(toggleButtons);
 function toggleButtons() {
   document.getElementById("convert_btn").style.display = "block";
   document.getElementById("working_indicator").style.display = "none";
+}
+
+eel.expose(setVersion);
+function setVersion(version) {
+  document.getElementById("app_version").textContent = version;
 }

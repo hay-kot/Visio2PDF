@@ -12,17 +12,16 @@ from reportlab.lib.colors import red
 from reportlab.lib.pagesizes import landscape
 from reportlab.pdfgen import canvas
 
-"""
-TODO: Dynamically set watermark page size
-TODO: Add Support for addiitonal file types in the Microsoft family ( Probably want to include subdirectory support first)
-"""
+# TODO: Dynamically set watermark page size
+# TODO: Add Support for addiitonal file types in the Microsoft family (Probably want to include subdirectory support first)
 
 
+# SECTION: Global Variables
+APP_VERSION = "v0.31"
 CWD = Path(__file__).parent
-
-eel_path = os.path.join(CWD, "web")
-eel.init(eel_path)
-external_converter = os.path.join(CWD, "OfficeToPDF.exe")
+EXTERNAL_CONVERTER = os.path.join(CWD, "OfficeToPDF.exe")
+PDF_DIR = "PDFs"
+# !SECTION: Global Variables
 
 
 @eel.expose
@@ -107,7 +106,7 @@ def convert_visio(file_dir, save_dir, enable_tagging, tag):
             else:
                 save_name = os.path.join(save_dir, f"{name}.pdf")
 
-            subprocess.run([external_converter, target, save_name], check=True)
+            subprocess.run([EXTERNAL_CONVERTER, target, save_name], check=True)
 
             if enable_tagging:
                 mark_pdf(watermark, save_name)
@@ -169,21 +168,23 @@ def main(
 
     # Set Save Path
     if insert_version_tag == True:
-        save_dir = os.path.join(visio_dir, "PDFs", version_tag)
+        save_dir = os.path.join(visio_dir, PDF_DIR, version_tag)
     else:
         dateTimeObj = datetime.now()
         timestampstr = dateTimeObj.strftime("%m-%d-%Y")
-        save_dir = os.path.join(visio_dir, "PDFs", timestampstr)
+        save_dir = os.path.join(visio_dir, PDF_DIR, timestampstr)
 
+    # Create Save Directory
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
         log(f"Creating Save Directory: {save_dir}")
 
+    # Main Visio Conversion Process
     if include_subdir == True:
         visio_dir_list = []
 
         for item in os.walk(visio_dir):
-            if "PDFs" in item[0]:
+            if PDF_DIR in item[0]:
                 continue
             else:
                 visio_dir_list.append(item[0])
@@ -210,14 +211,16 @@ def main(
         log(f"Setting Coversheet: {coversheet}")
         cover_path = os.path.join(save_dir, "CoverSheet.pdf")
 
-        subprocess.run([external_converter, coversheet, cover_path], check=True)
+        subprocess.run([EXTERNAL_CONVERTER, coversheet, cover_path], check=True)
     else:
         log("No Coversheet included, Skipping...")
 
+    # Merge all PDFs into one File
     merged_pdf = merge_pdfs(
         save_dir, sys_name, cover_path, insert_version_tag, version_tag
     )
 
+    # Final Cleanup
     log("Process Complete")
 
     eel.setMsgVisible()
@@ -226,4 +229,8 @@ def main(
     os.startfile(merged_pdf)
 
 
-eel.start("main.html", size=(550, 700), port=0)
+if __name__ == "__main__":
+    eel_path = os.path.join(CWD, "web")
+    eel.init(eel_path)
+    eel.setVersion(APP_VERSION)
+    eel.start("main.html", size=(550, 700), port=0)
