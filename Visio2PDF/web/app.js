@@ -40,6 +40,16 @@ function showLog() {
   }
 }
 
+function showAdvSetting() {
+  var currentState = document.getElementById("advanced_settings").style.display;
+
+  if (currentState === "none") {
+    document.getElementById("advanced_settings").style.display = "block";
+  } else {
+    document.getElementById("advanced_settings").style.display = "none";
+  }
+}
+
 async function getFolder() {
   dir_path = await eel.btn_SelectDir()();
   let dir_div = document.getElementById("dir_name");
@@ -109,6 +119,17 @@ async function convertVisio() {
 
   let insert_version_tag = document.getElementById("enable_tagging").checked;
 
+  let filetypes = {
+    visio: document.getElementById("include_visio").checked,
+    excel: document.getElementById("include_excel").checked,
+    word: document.getElementById("include_word").checked,
+    powerpoint: document.getElementById("include_powerpoint").checked,
+    publisher: document.getElementById("include_publisher").checked,
+    outlook: document.getElementById("include_outlook").checked,
+    project: document.getElementById("include_project").checked,
+    openOffice: document.getElementById("include_openoffice").checked,
+  };
+
   eel.main(
     dir_path,
     cover_path,
@@ -116,7 +137,8 @@ async function convertVisio() {
     insert_version_tag,
     version_tag,
     engineer_name,
-    include_subdir
+    include_subdir,
+    filetypes
   );
   document.getElementById("convert_btn").style.display = "none";
   document.getElementById("working_indicator").style.display = "block";
@@ -152,4 +174,11 @@ function toggleButtons() {
 eel.expose(setVersion);
 function setVersion(version) {
   document.getElementById("app_version").textContent = version;
+}
+
+eel.expose(setRepoVersionNotify);
+function setRepoVersionNotify(upToDate) {
+  if (upToDate != "True") {
+    document.getElementById("version_alert").style.display = "block";
+  }
 }

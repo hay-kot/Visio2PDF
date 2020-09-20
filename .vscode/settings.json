@@ -1,8 +1,6 @@
 {
   "python.formatting.provider": "black",
-  "python.pythonPath": "d:\\Programming\\Windows\\Visio2PDF\\venv\\Scripts\\python.exe",
+  "python.pythonPath": ".\\venv\\Scripts\\python.exe",
   "python.linting.pylintEnabled": true,
-  "python.linting.enabled": true,
-  "python.autoComplete.extraPaths": ["mealie"],
-  "python.analysis.extraPaths": ["mealie"]
+  "python.linting.enabled": true
 }

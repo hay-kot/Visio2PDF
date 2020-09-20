@@ -13,3 +13,9 @@
   text-align: right;
   font-size: 11px;
 }
+
+.alert {
+  margin-top: 8px;
+  max-height: 50px;
+  padding: 0px 10px;
+}

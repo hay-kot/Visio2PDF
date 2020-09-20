@@ -1,27 +1,47 @@
+import json
 import os
 import random
 import subprocess
+import urllib.request
 from datetime import datetime
 from pathlib import Path
+from pprint import pprint
 from time import sleep
 from tkinter import Tk, filedialog
 
 import eel
 from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter
+from PyPDF2.generic import Bookmark
 from reportlab.lib.colors import red
 from reportlab.lib.pagesizes import landscape
 from reportlab.pdfgen import canvas
 
 # TODO: Dynamically set watermark page size
-# TODO: Add Support for addiitonal file types in the Microsoft family (Probably want to include subdirectory support first)
+# TODO: Add Support for addiitonal file types in the Microsoft family
+# TODO: Create Formatted Excel Table of Contents
+# TODO: Add Preview File Option to see File Order
 
 
 # SECTION: Global Variables
-APP_VERSION = "v0.31"
+APP_VERSION = "v0.4"
 CWD = Path(__file__).parent
 EXTERNAL_CONVERTER = os.path.join(CWD, "OfficeToPDF.exe")
 PDF_DIR = "PDFs"
+REPO_URL = "https://api.github.com/repos/hay-kot/Visio2PDF/releases/latest"
+
 # !SECTION: Global Variables
+
+
+def get_app_version():
+    with urllib.request.urlopen(REPO_URL) as response:
+        json_values = json.loads(response.read())
+
+    up_to_date = "True"
+    repo_version = json_values["tag_name"]
+    if APP_VERSION != repo_version:
+        up_to_date = "False"
+
+    return up_to_date, repo_version
 
 
 @eel.expose
@@ -63,162 +83,285 @@ def find_cover(dir_path):
     return "none"
 
 
-def create_watermark(engineer_name, version_tag, system_name):
-    dateTimeObj = datetime.now()
-    timestampstr = dateTimeObj.strftime("%m/%d/%Y")
-    watermark = f"          VERSION: {version_tag}           SYSTEM: {system_name}           AUTHOR: {engineer_name}           DATE: {timestampstr}"
-
-    c = canvas.Canvas(os.path.join(CWD, "watermark.pdf"))
-    c.setPageSize(landscape((792, 1224)))
-    c.setFontSize(22)
-    c.setFont("Helvetica", 8)
-    c.setFillColor(red)
-    c.drawString(15, 15, watermark)
-    c.save()
-
-
-def mark_pdf(watermark_file, input_pdf):
-    output = input_pdf
-    watermark_obj = PdfFileReader(watermark_file)
-    watermark_page = watermark_obj.getPage(0)
-
-    pdf_reader = PdfFileReader(input_pdf)
-    pdf_writer = PdfFileWriter()
-
-    for page in range(pdf_reader.getNumPages()):
-        page = pdf_reader.getPage(page)
-        page.mergePage(watermark_page)
-        pdf_writer.addPage(page)
-
-    with open(output, "wb") as out:
-        pdf_writer.write(out)
-
-
-def convert_visio(file_dir, save_dir, enable_tagging, tag):
-    watermark = os.path.join(CWD, "watermark.pdf")
-    for files in os.listdir(file_dir):
-        name, extension = os.path.splitext(files)
-        if extension == ".vsdx" or extension == ".vsd":
-            log(f"Converting: {name}{extension}")
-            target = os.path.join(file_dir, files)
-            if enable_tagging:
-                save_name = os.path.join(save_dir, f"{name} {tag}.pdf")
-            else:
-                save_name = os.path.join(save_dir, f"{name}.pdf")
-
-            subprocess.run([EXTERNAL_CONVERTER, target, save_name], check=True)
-
-            if enable_tagging:
-                mark_pdf(watermark, save_name)
-            else:
-                sleep(0.5)
-
-
-def merge_pdfs(pdf_dir, new_name, coversheet, enable_tagging, tag):
-    log("Merging PDFs...")
-
-    merger = PdfFileMerger()
-
-    if os.path.isfile(coversheet):
-        merger.append(coversheet)
-
-    for files in os.listdir(pdf_dir):
-        if files.endswith("pdf"):
-            if files == "CoverSheet.pdf":
-                break
-            else:
-                merger.append(os.path.join(pdf_dir, files))
-
-    if enable_tagging:
-        final_pdf_path = os.path.join(pdf_dir, f"{new_name} {tag}.pdf")
-
-    else:
-        final_pdf_path = os.path.join(pdf_dir, f"{new_name}.pdf")
-
-    merger.write(final_pdf_path)
-    merger.close()
-
-    log(f"PDFs Merged: {new_name}.pdf")
-
-    return final_pdf_path
-
-
 def log(message):
     dateTimeObj = datetime.now()
     timestampStr = dateTimeObj.strftime("%d-%b (%H:%M:%S)")
     eel.putMessageInOutput(f"{timestampStr} | {message}")
 
 
+def check_create_dir(dir_path: Path):
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
+        log(f"Creating Save Directory: {dir_path}")
+
+
+class Watermark:
+    def __init__(self, author_name: str, version_tag: str, system_name: str):
+        self.author_name = author_name
+        self.version_tag = version_tag
+        self.system_name = system_name
+
+        dateTimeObj = datetime.now()
+        timestampstr = dateTimeObj.strftime("%m/%d/%Y")
+        watermark = f"          VERSION: {version_tag}           SYSTEM: {system_name}           AUTHOR: {author_name}           DATE: {timestampstr}"
+
+        c = canvas.Canvas(os.path.join(CWD, "watermark.pdf"))
+        c.setPageSize(landscape((792, 1224)))
+        c.setFontSize(22)
+        c.setFont("Helvetica", 8)
+        c.setFillColor(red)
+        c.drawString(15, 15, watermark)
+        c.save()
+
+        self.watermark = os.path.join(CWD, "watermark.pdf")
+
+    def write(self, PDF: Path):
+        output = PDF
+        watermark_obj = PdfFileReader(self.watermark)
+        watermark_page = watermark_obj.getPage(0)
+
+        pdf_reader = PdfFileReader(PDF)
+        pdf_writer = PdfFileWriter()
+
+        for page in range(pdf_reader.getNumPages()):
+            page = pdf_reader.getPage(page)
+            page.mergePage(watermark_page)
+            pdf_writer.addPage(page)
+
+        with open(output, "wb") as out:
+            pdf_writer.write(out)
+
+
+class ConverterTarget:
+    def __init__(
+        self,
+        main_dir: str,
+        coversheet: str,
+        merged_name: str,
+        tag: bool,
+        include_subdir: bool,
+        author_name: str,
+        v_tag: str,
+        filetypes: dict,
+    ):
+        # Main Parameters
+        self.main_dir = Path(main_dir)
+        self.dir_list = [self.main_dir]
+        self.name = merged_name
+        self.include_tagging = tag
+        self.include_subdir = include_subdir
+
+        if os.path.isfile(coversheet):
+            self.coversheet = Path(coversheet)
+
+        # Optional Version Parameters
+        if self.include_tagging:
+            self.author_name = author_name
+            self.tag = v_tag
+
+            self.watermark = Watermark(author_name, tag, self.name)
+            self.save_dir = os.path.join(main_dir, PDF_DIR, self.tag)
+        else:
+            dateTimeObj = datetime.now()
+            timestampstr = dateTimeObj.strftime("%m-%d-%Y")
+            self.save_dir = os.path.join(main_dir, PDF_DIR, timestampstr)
+
+        check_create_dir(self.save_dir)
+
+        if self.include_subdir:
+
+            for directories in os.walk(self.main_dir):
+                if PDF_DIR in directories[0]:
+                    continue
+                else:
+                    self.dir_list.append(directories[0])
+
+        self.file_types = []
+
+        # Create File Type List
+        VISIO = [".vsd", ".vsdx", ".vsdm", ".svg"]
+        WORD = [".doc", ".dot", ".docx", ".dotx", ".docm", ".dotm", ".rtf", ".wpd"]
+        EXCEL = [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".xltx", ".xltm", ".cs"]
+        POWERPOINT = [
+            ".ppt",
+            ".pptx",
+            ".pptm",
+            ".pps",
+            ".ppsx",
+            ".ppsm",
+            ".pot",
+            ".potx",
+            ".potm",
+        ]
+        PUBLISHER = [".pub"]
+        OUTLOOK = [".msg", ".vcf", ".ics"]
+        PROJECT = [".mpp"]
+        OPENOFFICE = [".odt", ".odp", ".ods"]
+
+        if filetypes["visio"]:
+            self.file_types.extend(VISIO)
+
+        if filetypes["word"]:
+            self.file_types.extend(WORD)
+
+        if filetypes["excel"]:
+            self.file_types.extend(EXCEL)
+
+        if filetypes["powerpoint"]:
+            self.file_types.extend(POWERPOINT)
+
+        if filetypes["project"]:
+            self.file_types.extend(PROJECT)
+
+        if filetypes["publisher"]:
+            self.file_types.extend(PUBLISHER)
+
+        if filetypes["openOffice"]:
+            self.file_types.extend(OPENOFFICE)
+
+        if filetypes["outlook"]:
+            self.file_types.extend(OUTLOOK)
+
+
+class Convert:
+    @staticmethod
+    def coversheet(target: ConverterTarget):
+        cover_path = "not a file"
+        if os.path.isfile(target.coversheet):
+            log(f"Setting Coversheet: {target.coversheet}")
+            cover_path = os.path.join(target.save_dir, "CoverSheet.pdf")
+
+            subprocess.run(
+                [EXTERNAL_CONVERTER, target.coversheet, cover_path], check=True
+            )
+
+            target.coversheetPDF = cover_path
+        else:
+            log("No Coversheet included, Skipping...")
+
+    @staticmethod
+    def files(target: ConverterTarget):
+        for dir in target.dir_list:
+            save_dir = os.path.join(target.save_dir, os.path.basename(dir))
+            for files in os.listdir(dir):
+                name, extension = os.path.splitext(files)
+                if extension in target.file_types:
+                    check_create_dir(save_dir)
+                    log(f"Converting: {name}{extension}")
+                    visio_file = os.path.join(dir, files)
+                    if target.include_tagging:
+                        save_name = os.path.join(save_dir, f"{name} {target.tag}.pdf")
+                    else:
+                        save_name = os.path.join(save_dir, f"{name}.pdf")
+
+                    subprocess.run(
+                        [EXTERNAL_CONVERTER, visio_file, save_name], check=True
+                    )
+
+                    if target.include_tagging:
+                        watermark = Watermark(
+                            target.author_name, target.tag, target.name
+                        )
+                        watermark.write(save_name)
+                    else:
+                        sleep(0.5)
+
+    @staticmethod
+    def preview(target: ConverterTarget):
+        for dir in target.dir_list:
+            x = 1
+            preview_files = []
+            for files in os.listdir(dir):
+                name, extension = os.path.splitext(files)
+                if extension in target.file_types:
+                    temp_dict = {"index": x, "name": name, "extension": extension}
+                    preview_files.append(temp_dict)
+
+
+def merge_pdfs(target: ConverterTarget):
+    log("Merging PDFs...")
+
+    merger = PdfFileMerger()
+
+    if os.path.isfile(target.coversheetPDF):
+        merger.append(target.coversheetPDF)
+
+    all_pdfs = []
+
+    for directories in os.walk(target.save_dir):
+        all_pdfs.append(directories[0])
+
+    for dir in all_pdfs:
+        x = 0
+        for files in os.listdir(dir):
+            if x == 0:
+                bookmark = os.path.basename(dir)
+            else:
+                bookmark = None
+            if files.endswith("pdf"):
+                if files == "CoverSheet.pdf":
+                    break
+                else:
+                    merger.append(
+                        os.path.join(dir, files),
+                        bookmark=bookmark,
+                        import_bookmarks=False,
+                    )
+            x += 1
+
+    if target.include_tagging:
+        final_pdf_path = os.path.join(
+            target.save_dir, f"{target.name} {target.tag}.pdf"
+        )
+
+    else:
+        final_pdf_path = os.path.join(target.save_dir, f"{target.name}.pdf")
+
+    merger.write(final_pdf_path)
+    merger.close()
+
+    log(f"PDFs Merged: {target.name}.pdf")
+
+    return final_pdf_path
+
+
+@eel.expose
+def get_json(data):
+    pprint(data)
+
+
 @eel.expose
 def main(
     visio_dir,
     coversheet,
-    sys_name="merged",
+    sys_name="Merged",
     insert_version_tag=False,
     version_tag=None,
-    engineer_name="undefined",
+    author_name="undefined",
     include_subdir=False,
+    filetypes=None,
 ):
     log("Starting...")
 
-    if insert_version_tag:
-        create_watermark(engineer_name, version_tag, sys_name)
+    target = ConverterTarget(
+        visio_dir,
+        coversheet,
+        sys_name,
+        insert_version_tag,
+        include_subdir,
+        author_name,
+        version_tag,
+        filetypes,
+    )
 
-    visio_dir = Path(visio_dir)
+    Convert.files(target)
 
-    # Set Save Path
-    if insert_version_tag == True:
-        save_dir = os.path.join(visio_dir, PDF_DIR, version_tag)
-    else:
-        dateTimeObj = datetime.now()
-        timestampstr = dateTimeObj.strftime("%m-%d-%Y")
-        save_dir = os.path.join(visio_dir, PDF_DIR, timestampstr)
+    Convert.coversheet(target)
 
-    # Create Save Directory
-    if not os.path.isdir(save_dir):
-        os.makedirs(save_dir)
-        log(f"Creating Save Directory: {save_dir}")
 
-    # Main Visio Conversion Process
-    if include_subdir == True:
-        visio_dir_list = []
-
-        for item in os.walk(visio_dir):
-            if PDF_DIR in item[0]:
-                continue
-            else:
-                visio_dir_list.append(item[0])
-
-        for visio_dir in visio_dir_list:
-            convert_visio(
-                visio_dir,
-                save_dir,
-                insert_version_tag,
-                version_tag,
-            )
-
-    elif include_subdir == False:
-        convert_visio(
-            visio_dir,
-            save_dir,
-            insert_version_tag,
-            version_tag,
-        )
-
-    # Cover Sheet
-    cover_path = "not a file"
-    if os.path.isfile(coversheet):
-        log(f"Setting Coversheet: {coversheet}")
-        cover_path = os.path.join(save_dir, "CoverSheet.pdf")
-
-        subprocess.run([EXTERNAL_CONVERTER, coversheet, cover_path], check=True)
-    else:
-        log("No Coversheet included, Skipping...")
 
     # Merge all PDFs into one File
-    merged_pdf = merge_pdfs(
-        save_dir, sys_name, cover_path, insert_version_tag, version_tag
-    )
+    merged_pdf = merge_pdfs(target)
 
     # Final Cleanup
     log("Process Complete")
@@ -233,4 +376,9 @@ if __name__ == "__main__":
     eel_path = os.path.join(CWD, "web")
     eel.init(eel_path)
     eel.setVersion(APP_VERSION)
+
+    # Update Version Header
+    up_to_date, _repo_version = get_app_version()
+    eel.setRepoVersionNotify(up_to_date)
+
     eel.start("main.html", size=(550, 700), port=0)

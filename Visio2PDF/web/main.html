@@ -23,7 +23,6 @@
             </div>
             <div class="col-2">
               <p class="app-version" id="app_version"></p>
-              <p class="app-version" id="app_version_new">v0.32</p>
             </div>
           </div>
         </div>
@@ -34,6 +33,9 @@
     <form style="width: 500px; margin: auto">
       <div id="required_fields_alert" class="alert alert-danger" role="alert" style="display: none;">
         ERROR: Please fill out all required values!
+      </div>
+      <div id="version_alert" class="alert alert-info" role="alert" style="display: none;">
+        A New Version is Avaiable. <a class="alert-link" target="_blank" href="https://github.com/hay-kot/Visio2PDF">Visit The Repo</a>
       </div>
       <div>
         <div class="form-group">
@@ -99,12 +101,60 @@
             </div>
         </div>
       <br>
-      <!-- Logger -->
+      <!-- Advanced Section -->
       <div>
-        <div>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <a type="button" class="btn btn-secondary btn-sm" onclick="showAdvSetting()">Advanced Settings</a>
+          <a type="button" class="btn btn-secondary btn-sm" onclick="showPreview()">Preview</a>
           <a type="button" class="btn btn-secondary btn-sm" onclick="showLog()">Show Log</a>
         </div>
-        <br>
+        <br> <br>
+        <!-- Advanced Settings -->
+        <form style="width: 500px; margin: auto">
+          <fieldset class="form-group" id="advanced_settings" style="display: none">
+            <div class="row">
+              <legend class="col-form-label col-sm-2">File Types</legend>
+              <div class="col-sm-10">
+                <div class="form-check">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_visio" checked="checked">
+                    <label class="custom-control-label" for="include_visio">Visio <i>(.vsd, .vsdx, .vsdm, .svg) [Requires >= Visio 2013 for .svg, .vsdx and .vsdm support]</i></label>
+                  </div> 
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_word">
+                    <label class="custom-control-label" for="include_word">Word (.doc, .dot,  .docx, .dotx, .docm, .dotm, .rtf, .wpd)</label>
+                  </div>                   
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_excel">
+                    <label class="custom-control-label" for="include_excel">Excel  (.xls, .xlsx, .xlsm, .xlsb, .xlt, .xltx, .xltm, .csv)</label>
+                  </div> 
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_powerpoint">
+                    <label class="custom-control-label" for="include_powerpoint">Powerpoint (.ppt, .pptx, .pptm, .pps, .ppsx, .ppsm, .pot, .potx, .potm)</label>
+                  </div> 
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_publisher">
+                    <label class="custom-control-label" for="include_publisher">Publisher (.pub) </label>
+                  </div> 
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_outlook">
+                    <label class="custom-control-label" for="include_outlook">Outlook (.msg, .vcf, .ics)</label>
+                  </div> 
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_project">
+                    <label class="custom-control-label" for="include_project">Project (.mpp) [Requires Project >= 2010 for .mpp support]</label>
+                  </div> 
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="include_openoffice">
+                    <label class="custom-control-label" for="include_openoffice">OpenOffice (.odt, .odp, .ods)</label>
+                  </div> 
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+        <!-- Preview Table -->
+        <!-- Logger -->
         <div id="output" style="display: none">
           <textarea class="form-control" wrap="off" readonly style="font-size: 10px; resize: vertical; max-height: 200px; height: 200px"></textarea>
         </div>
