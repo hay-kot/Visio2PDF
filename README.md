@@ -2,6 +2,8 @@
 
 This is a small GUI used for batch converting Microsoft Visio files or others and packagin into a single PDF. Currently only supports 11x17 visio files for watermarks. The primary use case for this for updating and versioning PDF copies of visio drawings updated in the field to keep a record of changes made.
 
+![Alt Text](./images/demo-v0.4.gif)
+
 ## Features
 
 - Convert entire directory of visio files into both single and merged PDFs.
@@ -24,7 +26,7 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 
 [Download](https://github.com/hay-kot/Visio2PDF/releases/tag/v0.4) and unzip the archive, locate Visio2PDF.exe and execute.
 
-![](images/ui-v0.4.png)
+![](./images/ui-v0.4.png)
 
 ### Using the Application
 
