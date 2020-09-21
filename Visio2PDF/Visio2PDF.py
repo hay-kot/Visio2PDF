@@ -268,14 +268,25 @@ class Convert:
 
     @staticmethod
     def preview(target: ConverterTarget):
+        preview_files = []
+        x = 1
+
+        if os.path.isfile(target.coversheet):
+            filename = os.path.basename(target.coversheet)
+            name, extension = os.path.splitext(filename)
+            temp_dict = {"Page": x, "Name": name, "Type": extension}
+            preview_files.append(temp_dict)
+            x += 1
+
         for dir in target.dir_list:
-            x = 1
-            preview_files = []
             for files in os.listdir(dir):
                 name, extension = os.path.splitext(files)
                 if extension in target.file_types:
-                    temp_dict = {"index": x, "name": name, "extension": extension}
+                    temp_dict = {"Page": x, "Name": name, "Type": extension}
                     preview_files.append(temp_dict)
+                    x += 1
+
+        return json.dumps(preview_files)
 
 
 def merge_pdfs(target: ConverterTarget):
@@ -326,8 +337,30 @@ def merge_pdfs(target: ConverterTarget):
 
 
 @eel.expose
-def get_json(data):
-    pprint(data)
+def getPreview(
+    visio_dir,
+    coversheet,
+    sys_name="Merged",
+    insert_version_tag=False,
+    version_tag=None,
+    author_name="undefined",
+    include_subdir=False,
+    filetypes=None,
+):
+
+    target = ConverterTarget(
+        visio_dir,
+        coversheet,
+        sys_name,
+        insert_version_tag,
+        include_subdir,
+        author_name,
+        version_tag,
+        filetypes,
+    )
+
+    print(Convert.preview(target))
+    return Convert.preview(target)
 
 
 @eel.expose
@@ -358,8 +391,6 @@ def main(
 
     Convert.coversheet(target)
 
-
-
     # Merge all PDFs into one File
     merged_pdf = merge_pdfs(target)
 
@@ -381,4 +412,4 @@ if __name__ == "__main__":
     up_to_date, _repo_version = get_app_version()
     eel.setRepoVersionNotify(up_to_date)
 
-    eel.start("main.html", size=(550, 700), port=0)
+    eel.start("main.html", size=(550, 800), port=0)
