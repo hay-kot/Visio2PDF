@@ -16,9 +16,7 @@ from reportlab.lib.pagesizes import landscape
 from reportlab.pdfgen import canvas
 
 # TODO: Dynamically set watermark page size
-# TODO: Add Support for addiitonal file types in the Microsoft family
 # TODO: Create Formatted Excel Table of Contents
-# TODO: Add Preview File Option to see File Order
 
 
 # SECTION: Global Variables

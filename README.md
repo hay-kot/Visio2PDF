@@ -16,10 +16,11 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 
 ## TODO's
 
-- O&M / Submittal Packaging Option.
 - Darkmode / Save Settings
-- Profiles
-- Batch Jobs
+- History / Rerun Options
+- SavedProfiles
+- Batch Jobs - Run mutiple profiles with one command
+- O&M / Submittal Packaging Option.
 
 <hr>
 
