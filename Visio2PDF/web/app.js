@@ -2,6 +2,49 @@
 let dir_path;
 let cover_path;
 let insert_version_tag;
+let previewData;
+
+// SECTION: Version Information
+eel.expose(setVersion);
+function setVersion(version) {
+  document.getElementById("app_version").textContent = version;
+}
+
+eel.expose(setRepoVersionNotify);
+function setRepoVersionNotify(upToDate) {
+  if (upToDate != "True") {
+    document.getElementById("version_alert").style.display = "block";
+  }
+}
+// !SECTION: Version Information
+
+// SECTION: Folder / Cover Selection
+async function getFolder() {
+  dir_path = await eel.btn_SelectDir()();
+  let dir_div = document.getElementById("dir_name");
+  dir_div.value = dir_path;
+
+  // Calls attempts to find a cover sheet
+  cover_path = await eel.find_cover(dir_path)();
+  if (cover_path !== false) {
+    let cover_div = document.getElementById("cover_name");
+    cover_div.value = cover_path;
+  }
+}
+
+async function getCover() {
+  cover_path = await eel.btn_SelectCoverSheet()();
+  let cover_div = document.getElementById("cover_name");
+  cover_div.value = cover_path;
+}
+// !SECTION
+
+// SECTION: Togglers
+eel.expose(toggleButtons);
+function toggleButtons() {
+  document.getElementById("convert_btn").style.display = "block";
+  document.getElementById("working_indicator").style.display = "none";
+}
 
 function toggleVersioning() {
   var current_val = document.getElementById("version_tag").disabled;
@@ -30,16 +73,6 @@ function setMsgVisible() {
   document.getElementById("working_indicator").style.display = "none";
 }
 
-function showLog() {
-  var currentState = document.getElementById("output").style.display;
-
-  if (currentState === "none") {
-    document.getElementById("output").style.display = "block";
-  } else {
-    document.getElementById("output").style.display = "none";
-  }
-}
-
 function showAdvSetting() {
   var currentState = document.getElementById("advanced_settings").style.display;
 
@@ -50,42 +83,18 @@ function showAdvSetting() {
   }
 }
 
-async function getFolder() {
-  dir_path = await eel.btn_SelectDir()();
-  let dir_div = document.getElementById("dir_name");
-  dir_div.value = dir_path;
+function showPreview() {
+  var currentState = document.getElementById("preview").style.display;
 
-  // Calls attempts to find a cover sheet
-  cover_path = await eel.find_cover(dir_path)();
-  if (cover_path !== false) {
-    let cover_div = document.getElementById("cover_name");
-    cover_div.value = cover_path;
-  }
-}
-
-async function getCover() {
-  cover_path = await eel.btn_SelectCoverSheet()();
-  let cover_div = document.getElementById("cover_name");
-  cover_div.value = cover_path;
-}
-
-function validateEntry(entry_array) {
-  var falseCheck;
-  entry_array.forEach(function (item, index, array) {
-    if (item === "") {
-      falseCheck = false;
-    } else if (item === "undefined") {
-      falseCheck = false;
-    }
-  });
-  console.log(falseCheck);
-  if (falseCheck === false) {
-    return false;
+  if (currentState === "none") {
+    document.getElementById("preview").style.display = "block";
   } else {
-    return true;
+    document.getElementById("preview").style.display = "none";
   }
 }
+// !SECTION: Togglers
 
+// SECTION: Form Validators
 function validateForm() {
   var sys_name = document.getElementById("sys_name").value;
   var insert_version_tag = document.getElementById("enable_tagging").checked;
@@ -104,6 +113,110 @@ function validateForm() {
   return isValid;
 }
 
+function validateEntry(entry_array) {
+  var falseCheck;
+  entry_array.forEach(function (item, _index, _array) {
+    if (item === "") {
+      falseCheck = false;
+    } else if (item === "undefined") {
+      falseCheck = false;
+    }
+  });
+  console.log(falseCheck);
+  if (falseCheck === false) {
+    return false;
+  } else {
+    return true;
+  }
+}
+// !SECTION: Form Validators
+
+// Preview Functions
+async function getPreview() {
+  if (validateForm() === false) {
+    document.getElementById("required_fields_alert").style.display = "block";
+    return;
+  }
+  document.getElementById("required_fields_alert").style.display = "none";
+  document.getElementById("msg").style.display = "none";
+
+  let sys_name = document.getElementById("sys_name").value;
+  let version_tag = document.getElementById("version_tag").value;
+  let engineer_name = document.getElementById("engineer_name").value;
+  let include_subdir = document.getElementById("merge_subdirs").checked;
+
+  let insert_version_tag = document.getElementById("enable_tagging").checked;
+
+  let filetypes = {
+    visio: document.getElementById("include_visio").checked,
+    excel: document.getElementById("include_excel").checked,
+    word: document.getElementById("include_word").checked,
+    powerpoint: document.getElementById("include_powerpoint").checked,
+    publisher: document.getElementById("include_publisher").checked,
+    outlook: document.getElementById("include_outlook").checked,
+    project: document.getElementById("include_project").checked,
+    openOffice: document.getElementById("include_openoffice").checked,
+  };
+
+  previewData = await eel.getPreview(
+    dir_path,
+    cover_path,
+    sys_name,
+    insert_version_tag,
+    version_tag,
+    engineer_name,
+    include_subdir,
+    filetypes
+  )();
+
+  previewData = JSON.parse(previewData);
+  console.log(previewData);
+
+  var col = [];
+  for (var i = 0; i < previewData.length; i++) {
+    for (var key in previewData[i]) {
+      if (col.indexOf(key) === -1) {
+        col.push(key);
+        console.log(key);
+      }
+    }
+  }
+
+  console.log(col);
+
+  // CREATE DYNAMIC TABLE.
+  var table = document.createElement("table");
+
+  // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+  var tr = table.insertRow(-1); // TABLE ROW.
+
+  for (var i = 0; i < col.length; i++) {
+    var th = document.createElement("th"); // TABLE HEADER.
+    th.setAttribute("scope", "col")
+    th.innerHTML = col[i];
+    tr.appendChild(th);
+  }
+
+  // ADD JSON DATA TO THE TABLE AS ROWS.
+  for (var i = 0; i < previewData.length; i++) {
+    tr = table.insertRow(-1);
+
+    for (var j = 0; j < col.length; j++) {
+      var tabCell = tr.insertCell(-1);
+      tabCell.innerHTML = previewData[i][col[j]];
+    }
+  }
+
+  // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+  var divContainer = document.getElementById("preview");
+  divContainer.innerHTML = "";
+  divContainer.appendChild(table);
+
+  showPreview();
+}
+
+// Primary Function
 async function convertVisio() {
   if (validateForm() === false) {
     document.getElementById("required_fields_alert").style.display = "block";
@@ -144,6 +257,17 @@ async function convertVisio() {
   document.getElementById("working_indicator").style.display = "block";
 }
 
+// SECTION: Logger
+function showLog() {
+  var currentState = document.getElementById("output").style.display;
+
+  if (currentState === "none") {
+    document.getElementById("output").style.display = "block";
+  } else {
+    document.getElementById("output").style.display = "none";
+  }
+}
+
 eel.expose(putMessageInOutput);
 function putMessageInOutput(message) {
   const outputNode = document.querySelector("#output textarea");
@@ -165,20 +289,10 @@ function signalPackagingComplete(successful) {
   window.scrollTo(0, document.body.scrollHeight);
 }
 
-eel.expose(toggleButtons);
-function toggleButtons() {
-  document.getElementById("convert_btn").style.display = "block";
-  document.getElementById("working_indicator").style.display = "none";
-}
+// !SECTION: Logger
 
-eel.expose(setVersion);
-function setVersion(version) {
-  document.getElementById("app_version").textContent = version;
-}
+function CreateTableFromJSON(previewData) {
+  console.log(`Length: (previewData.length)`);
 
-eel.expose(setRepoVersionNotify);
-function setRepoVersionNotify(upToDate) {
-  if (upToDate != "True") {
-    document.getElementById("version_alert").style.display = "block";
-  }
+  // EXTRACT VALUE FOR HTML HEADER.
 }

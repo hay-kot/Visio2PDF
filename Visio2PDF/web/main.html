@@ -105,7 +105,7 @@
       <div>
         <div class="btn-group" role="group" aria-label="Basic example">
           <a type="button" class="btn btn-secondary btn-sm" onclick="showAdvSetting()">Advanced Settings</a>
-          <a type="button" class="btn btn-secondary btn-sm" onclick="showPreview()">Preview</a>
+          <a type="button" class="btn btn-secondary btn-sm" onclick="getPreview()">Preview</a>
           <a type="button" class="btn btn-secondary btn-sm" onclick="showLog()">Show Log</a>
         </div>
         <br> <br>
@@ -154,6 +154,8 @@
           </fieldset>
         </form>
         <!-- Preview Table -->
+        <div id="preview" class="table table-hover" style="display: none">
+        </div>
         <!-- Logger -->
         <div id="output" style="display: none">
           <textarea class="form-control" wrap="off" readonly style="font-size: 10px; resize: vertical; max-height: 200px; height: 200px"></textarea>
