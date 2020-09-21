@@ -6,29 +6,42 @@
     <script type="text/javascript" src="app.js"></script>
     <link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/bootstrap-reboot.css">
+    <link rel="stylesheet" href="/css/dark/dark-mode.css">
     <link rel="stylesheet" href="/css/main.css">
   </head>
   <body>
     <!-- Main Header -->
     <div class="title-background">
       <div style="width: 500px; margin: auto" >
-        <img src="logo.png" class="rounded float-left" style="width: 15%; height: 15%; vertical-align:middle; padding: 5px;">
-        <a href="https://github.com/hay-kot/Visio2PDF" target="_blank" style="vertical-align:middle;">
-          <img src="github.png"  class="rounded float-right" style="width: 7%; height: 7%; vertical-align:middle; padding: 5px;">
-        </a>
-        <div class="container">
-          <div class="row">
-            <div class="col-10">
-               <h3 class="main-title">Visio2PDF Converter </h3> 
+          <img src="logo.png" class="rounded float-left" style="width: 15%; height: 15%; vertical-align:middle; padding: 5px;">
+          <a href="https://github.com/hay-kot/Visio2PDF" target="_blank" style="vertical-align:middle;">
+            <img src="github.png"  class="rounded float-right" style="width: 7%; height: 7%; vertical-align:middle; padding: 5px;">
+          </a>
+          <div class="container">
+            <div class="row">
+              <div class="col-10">
+                 <h3 class="main-title">Visio2PDF </h3> 
+              </div>
+              <div class="col-2">
+                <p class="app-version" id="app_version"></p>
+              </div>  
             </div>
-            <div class="col-2">
-              <p class="app-version" id="app_version"></p>
+          </div>
+        <div class="row">
+          <div class="col-8"></div>
+          <div class="col-4">
+            <div class="custom-control custom-switch dark-switch">
+              <input type="checkbox" class="custom-control-input" id="darkSwitch" />
+              <label class="custom-control-label" for="darkSwitch">Dark Mode</label>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <!-- Form Body -->
+
+    <script src="dark-mode-switch.min.js"></script>
     </div>
     <form style="width: 500px; margin: auto">
       <div id="required_fields_alert" class="alert alert-danger" role="alert" style="display: none;">
@@ -60,14 +73,23 @@
         </div>
       </div>
       <br>
+      <!-- Files Selectors -->
       <div>
         <div>
           <div>
             <label for="dir_name">Main Directory</label>
           </div>
-          <div class="input-group">
-            <input class="form-control" id="dir_name" placeholder="Required: Path to Directory">
-            <a class="btn btn-outline-danger" onclick="getFolder()" value="Input">Browse</a>
+          <div class="row">
+            <div class="col-10">
+              <div class="input-group">
+                <input class="form-control selector" id="dir_name" placeholder="Required: Path to Directory">
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="input-group">
+                <a class="btn btn-outline-danger" onclick="getFolder()" value="Input">Browse</a>
+              </div>
+            </div>
           </div>
           <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="merge_subdirs">
@@ -76,11 +98,25 @@
         </div>
         <br>
         <div>
-          <label for="cover_name">Cover Sheet</label>
+          <div>
+            <label for="cover_name">Cover Sheet</label>
+          </div>
+          <div class="row">
+            <div class="col-10">
+              <div class="input-group">
+                <input class="form-control selector" id="cover_name" placeholder="Optional: Path To File"></input>
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="input-group">
+                <a class="btn btn-outline-danger" onclick="getCover()" value="Input">Browse</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
         </div>
         <div class="input-group">
-          <input class="form-control" id="cover_name" placeholder="Optional: Path To File"></input>
-          <a class="btn btn-outline-danger" onclick="getCover()" value="Input">Browse</a>
         </div>
       </div>
       <br>
@@ -154,13 +190,18 @@
           </fieldset>
         </form>
         <!-- Preview Table -->
-        <div id="preview" class="table table-hover" style="display: none">
+        <div class="table-responsive">
+          <div id="preview" class="table table-hover table-sm" style="display: none">
+          </div>
         </div>
+
         <!-- Logger -->
-        <div id="output" style="display: none">
-          <textarea class="form-control" wrap="off" readonly style="font-size: 10px; resize: vertical; max-height: 200px; height: 200px"></textarea>
+        <div class="log" id="output" style="display: none">
+          <textarea class="form-control log" wrap="off" readonly style="font-size: 10px; resize: vertical; max-height: 200px; min-height: 200px"></textarea>
         </div>
     </div>
     </form>
+    <!-- You must load 'dark-mode-switch.js' at the foot of the page -->
+    <script src="/css/dark/dark-mode-switch.js"></script>
   </body>
 </html>

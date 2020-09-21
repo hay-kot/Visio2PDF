@@ -5,7 +5,6 @@ import subprocess
 import urllib.request
 from datetime import datetime
 from pathlib import Path
-from pprint import pprint
 from time import sleep
 from tkinter import Tk, filedialog
 
@@ -23,7 +22,7 @@ from reportlab.pdfgen import canvas
 
 
 # SECTION: Global Variables
-APP_VERSION = "v0.4"
+APP_VERSION = "v0.41"
 CWD = Path(__file__).parent
 EXTERNAL_CONVERTER = os.path.join(CWD, "OfficeToPDF.exe")
 PDF_DIR = "PDFs"
@@ -271,12 +270,15 @@ class Convert:
         preview_files = []
         x = 1
 
-        if os.path.isfile(target.coversheet):
-            filename = os.path.basename(target.coversheet)
-            name, extension = os.path.splitext(filename)
-            temp_dict = {"Page": x, "Name": name, "Type": extension}
-            preview_files.append(temp_dict)
-            x += 1
+        try:
+            if target.coversheet:
+                filename = os.path.basename(target.coversheet)
+                name, extension = os.path.splitext(filename)
+                temp_dict = {"Page": x, "Name": name, "Type": extension}
+                preview_files.append(temp_dict)
+                x += 1
+        except:
+            pass
 
         for dir in target.dir_list:
             for files in os.listdir(dir):
@@ -294,8 +296,11 @@ def merge_pdfs(target: ConverterTarget):
 
     merger = PdfFileMerger()
 
-    if os.path.isfile(target.coversheetPDF):
-        merger.append(target.coversheetPDF)
+    try:
+        if os.path.isfile(target.coversheetPDF):
+            merger.append(target.coversheetPDF)
+    except:
+        pass
 
     all_pdfs = []
 
@@ -359,7 +364,6 @@ def getPreview(
         filetypes,
     )
 
-    print(Convert.preview(target))
     return Convert.preview(target)
 
 
@@ -389,7 +393,11 @@ def main(
 
     Convert.files(target)
 
-    Convert.coversheet(target)
+    try:
+        if target.coversheet:
+            Convert.coversheet(target)
+    except:
+        pass
 
     # Merge all PDFs into one File
     merged_pdf = merge_pdfs(target)
@@ -412,4 +420,4 @@ if __name__ == "__main__":
     up_to_date, _repo_version = get_app_version()
     eel.setRepoVersionNotify(up_to_date)
 
-    eel.start("main.html", size=(550, 800), port=0)
+    eel.start("main.html", size=(570, 800), port=0)

@@ -1,6 +1,6 @@
 ./venv/Scripts/Activate.ps1
 
-$Version = "v0.4"
+$Version = "v0.41"
 $ProjName = "Visio2PDF"
 $Name = "$ProjName $Version"
 $BuildDir = "./dist"

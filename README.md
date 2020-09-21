@@ -17,6 +17,9 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 ## TODO's
 
 - O&M / Submittal Packaging Option.
+- Darkmode / Save Settings
+- Profiles
+- Batch Jobs
 
 <hr>
 

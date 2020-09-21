@@ -1,0 +1,40 @@
+[data-theme="dark"] {
+  background-color: #313032 !important;
+  color: #eee;
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: #333 !important;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: #000 !important;
+}
+
+[data-theme="dark"] .bg-black {
+  background-color: #eee !important;
+}
+
+[data-theme="dark"] .table {
+  color: white;
+}
+
+[data-theme="dark"] .btn-outline-danger {
+  color: white;
+  margin-left: -22px;
+  background-color: #c82333;
+}
+
+[data-theme="dark"] .form-control {
+  background-color: #313032;
+  color: white;
+}
+
+[data-theme="dark"] .input {
+  color: white;
+}
+
+[data-theme="dark"] ::placeholder {
+  color: white;
+  opacity: 70%;
+}

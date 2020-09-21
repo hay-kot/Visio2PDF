@@ -23,3 +23,20 @@
 .table {
   font-size: 13px;
 }
+
+.dark-switch {
+  color: white;
+  margin-top: -30px;
+}
+
+.selector {
+  margin-right: 5px;
+}
+
+.btn-outline-danger {
+  margin-left: -22px;
+}
+
+.log {
+  padding-bottom: 10px;
+}

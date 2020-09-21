@@ -186,6 +186,7 @@ async function getPreview() {
 
   // CREATE DYNAMIC TABLE.
   var table = document.createElement("table");
+  table.setAttribute("style", "width: 500px;");
 
   // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
 
@@ -193,7 +194,7 @@ async function getPreview() {
 
   for (var i = 0; i < col.length; i++) {
     var th = document.createElement("th"); // TABLE HEADER.
-    th.setAttribute("scope", "col")
+    th.setAttribute("scope", "col");
     th.innerHTML = col[i];
     tr.appendChild(th);
   }
