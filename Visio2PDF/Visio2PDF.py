@@ -15,10 +15,12 @@ from reportlab.pdfgen import canvas
 
 # TODO: Dynamically set watermark page size
 # TODO: Create Formatted Excel Table of Contents
+# TODO: Fix error on long file path/name
+# TODO: Automatically Generate Settings if none Avaiable
 
 
 # SECTION: Global Variables
-APP_VERSION = "v0.51"
+APP_VERSION = "v0.5.1"
 REPO_URL = "https://api.github.com/repos/hay-kot/Visio2PDF/releases/latest"
 
 CWD = Path(__file__).parent
@@ -290,8 +292,8 @@ class ConverterJob:
         job_list = []
         x = 1
 
-        for f in os.listdir(dir):
-            with open(os.path.join(dir, f), "r") as f:
+        for job in os.listdir(dir):
+            with open(os.path.join(dir, job), "r") as f:
                 details = json.load(f)
 
                 name = details["name"]
@@ -300,6 +302,8 @@ class ConverterJob:
                 tagging = details["versionTagging"]
                 author = details["versionData"]["authorName"]
                 tag = details["versionData"]["versionTag"]
+                path = (os.path.join(dir, job))
+                        
                 try:
                     coversheet = os.path.isfile(details["coverSheet"])
                 except TypeError:
@@ -316,6 +320,9 @@ class ConverterJob:
                 "Tag": tag,
                 "Run": button,
                 "Import": f"import-{button}",
+                "meta": {
+                    "path": path
+                }
             }
             job_list.append(data)
 
@@ -537,3 +544,4 @@ if __name__ == "__main__":
     eel.setRepoVersionNotify(up_to_date)
 
     eel.start("main.html", size=(1080, 725), port=0)
+

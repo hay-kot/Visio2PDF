@@ -4,6 +4,9 @@ let cover_path;
 let insert_version_tag;
 let previewData;
 
+let historyJSON;
+let savedJSON;
+
 // SECTION: Settings
 eel.expose(setSettings);
 function setSettings(settings) {
@@ -177,55 +180,50 @@ function JSONtoTable(json, location) {
   var tr = table.insertRow(-1); // TABLE ROW.
 
   for (var i = 0; i < col.length; i++) {
-    var th = document.createElement("th"); // TABLE HEADER.
-    th.setAttribute("scope", "col");
-    th.innerHTML = col[i];
-    tr.appendChild(th);
+    if (col[i] != "meta") {
+      var th = document.createElement("th"); // TABLE HEADER.
+      th.setAttribute("scope", "col");
+      th.innerHTML = col[i];
+      tr.appendChild(th);
+    }
   }
-
-  // var th = document.createElement("th"); // TABLE HEADER.
-  // th.setAttribute("scope", "col");
-  // th.innerHTML = "Import";
-  // tr.appendChild(th);
 
   // ADD JSON DATA TO THE TABLE AS ROWS.
   for (var i = 0; i < json.length; i++) {
     tr = table.insertRow(-1);
 
     for (var j = 0; j < col.length; j++) {
-      var tabCell = tr.insertCell(-1);
+      console.log(col[j]);
+      if (col[j] != "meta") {
+        var tabCell = tr.insertCell(-1);
 
-      if (json[i][col[j]] == "history") {
-        // History
-        tabCell.innerHTML = `<a id="history-${
-          i + 1
-        }" onclick="runHistory(${i})" type="button" class="btn btn btn-danger btn-sm"> Run </a>`;
+        if (json[i][col[j]] == "history") {
+          // History
+          tabCell.innerHTML = `<a id="history-${
+            i + 1
+          }" onclick="runHistory(${i})" type="button" class="btn btn btn-danger btn-sm"> Run </a>`;
+          // Saved
+        } else if (json[i][col[j]] == "import-history") {
+          // Import History
+          // tabCell = tr.insertCell(-1);
+          tabCell.innerHTML = `<a id="history-import${
+            i + 1
+          }" onclick="importHistory(${i})" type="button" class="btn btn btn-danger btn-sm"> Import </a>`;
+        } else if (json[i][col[j]] == "saved") {
+          tabCell.innerHTML = `<a id="saved-${
+            i + 1
+          }" onclick="runSaved(${i})" type="button" class="btn btn btn-danger btn-sm"> Run </a>`;
+        } else if (json[i][col[j]] == "import-saved") {
+          // Import Saved
+          // tabCell = tr.insertCell(-1);
+          tabCell.innerHTML = `<a id="history-import${
+            i + 1
+          }" onclick="importSaved(${i})" type="button" class="btn btn btn-danger btn-sm"> Import </a>`;
+        } else {
+          tabCell.innerHTML = json[i][col[j]];
+        }
         tabCell.setAttribute("class", "align-middle");
-
-        // Saved
-      } else if (json[i][col[j]] == "import-history") {
-        // Import History
-        // tabCell = tr.insertCell(-1);
-        tabCell.innerHTML = `<a id="history-import${
-          i + 1
-        }" onclick="importHistory(${i})" type="button" class="btn btn btn-danger btn-sm"> Import </a>`;
-        tabCell.setAttribute("class", "align-middle");
-      } else if (json[i][col[j]] == "saved") {
-        tabCell.innerHTML = `<a id="saved-${
-          i + 1
-        }" onclick="runSaved(${i})" type="button" class="btn btn btn-danger btn-sm"> Run </a>`;
-        tabCell.setAttribute("class", "align-middle");
-      } else if (json[i][col[j]] == "import-saved") {
-        // Import Saved
-        // tabCell = tr.insertCell(-1);
-        tabCell.innerHTML = `<a id="history-import${
-          i + 1
-        }" onclick="importSaved(${i})" type="button" class="btn btn btn-danger btn-sm"> Import </a>`;
-        tabCell.setAttribute("class", "align-middle");
-      } else {
-        tabCell.innerHTML = json[i][col[j]];
       }
-      tabCell.setAttribute("class", "align-middle");
     }
   }
 
@@ -392,6 +390,8 @@ eel.expose(setHistory);
 function setHistory(jobs) {
   var jobs = JSON.parse(jobs);
 
+  historyJSON = jobs;
+
   JSONtoTable(jobs, "history");
 }
 
@@ -401,6 +401,11 @@ function runHistory(index) {
 
 async function importHistory(index) {
   data = await eel.import_history(index);
+
+  data = historyJSON[index];
+
+  console.log(data);
+
   setFromImport(data);
 }
 
@@ -408,6 +413,8 @@ async function importHistory(index) {
 eel.expose(setSaved);
 function setSaved(jobs) {
   var jobs = JSON.parse(jobs);
+
+  savedJSON = jobs;
 
   JSONtoTable(jobs, "saved");
 }

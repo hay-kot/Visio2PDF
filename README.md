@@ -2,6 +2,20 @@
 
 This is a small GUI used for batch converting Microsoft Visio files or others and packagin into a single PDF. Currently only supports 11x17 visio files for watermarks. The primary use case for this for updating and versioning PDF copies of visio drawings updated in the field to keep a record of changes made.
 
+- [Visio2PDF](#visio2pdf)
+  - [Features](#features)
+  - [TODO's](#todos)
+  - [Getting Started](#getting-started)
+    - [Running The Application](#running-the-application)
+    - [Using the Application](#using-the-application)
+      - [Field Descriptions](#field-descriptions)
+      - [Example Watermark](#example-watermark)
+      - [File Structure Input / Output Examples](#file-structure-input--output-examples)
+  - [Prerequisites](#prerequisites)
+  - [Authors](#authors)
+  - [License](#license)
+  - [Acknowledgments](#acknowledgments)
+
 **DEMO for V0.41**
 
 ![Alt Text](./images/demo-v0.4.gif)
@@ -22,7 +36,7 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 ## TODO's
 
 - Batch Jobs - Run mutiple profiles with one command
-- O&M / Submittal Packaging Option.
+- Automatic Cover Sheet / Templates Cover Sheet
 
 <hr>
 
@@ -54,8 +68,6 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 ![](images/watermark.png)
 
 #### File Structure Input / Output Examples
-
-##### Include Subdirectories
 
 - **System Name:** Building B1
 - **Version Tag:** v1.1
