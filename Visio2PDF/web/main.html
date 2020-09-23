@@ -100,7 +100,7 @@
       </div>
       <br>
       <!-- Buttons / Alerts -->
-      <div>
+      <!-- <div>
         <div class="custom-control custom-checkbox">
           <input type="checkbox" class="custom-control-input" id="save_job">
           <label class="custom-control-label" for="save_job">Save Current Job</label>
@@ -118,15 +118,41 @@
             <div class="alert alert-success" role="success" id="msg" style="display: none;">
               Action Completed Successfully!
             </div>
-        </div>
+        </div> -->
+      <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="save_job">
+        <label class="custom-control-label" for="save_job">Save Current Job</label>
+      </div>
       <!-- Menu Section -->
       <div>
-        <div id="bottom-menu" class="btn-group" role="group" aria-label="Basic example">
-          <a id="history-btn" type="button" class="btn btn-secondary btn-sm btn-danger" onclick="menuSelect(this.id, 'history-table')">History</a>
-          <a id="preview-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'preview-table')">Preview</a>
-          <a id="saved-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'saved-table')">Saved</a>
-          <a id="settings-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'settings-menu')">Settings</a>
-          <a id="log-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'output')">Show Log</a>
+        <div class="row">
+          <div class="col-6">
+            <div id="bottom-menu" class="btn-group" role="group" aria-label="Basic example">
+              <a id="history-btn" type="button" class="btn btn-secondary btn-sm btn-danger" onclick="menuSelect(this.id, 'history-table')">History</a>
+              <a id="preview-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'preview-table')">Preview</a>
+              <a id="saved-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'saved-table')">Saved</a>
+              <a id="settings-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'settings-menu')">Settings</a>
+              <a id="log-btn" type="button" class="btn btn-secondary btn-sm" onclick="menuSelect(this.id, 'output')">Show Log</a>
+            </div>
+          </div>
+          <div class="col-6">
+            <div>
+              <div id="convert_btn" class="form-group" style="display: block;">
+                <a class="btn btn-danger btn-sm btn-block" id="visio_button" type=submit onclick="convertVisio()">Convert</a>
+              </div>
+                <div class="form-group">
+                  <div id="working_indicator" style="display: none;">
+                    <button class="btn btn-success btn-sm btn-block" type="button" disabled>
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      Working...
+                    </button>
+                  </div>
+                  <div class="alert alert-success" role="success" id="msg" style="display: none;">
+                    Action Completed Successfully!
+                  </div>
+              </div>
+            </div>
+            </div>
         </div>
         <br> <br>
         <!-- Menu Details-->
@@ -196,7 +222,6 @@
           <div class="log menu-details" id="output" style="display: none">
             <textarea class="form-control log" wrap="off" readonly style="font-size: 10px; resize: vertical; max-height: 200px; min-height: 200px"></textarea>
           </div>
-
         </div>
     </div>
     </form>
