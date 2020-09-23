@@ -60,6 +60,12 @@ function toggleButtons() {
   document.getElementById("working_indicator").style.display = "none";
 }
 
+eel.expose(setMsgVisible);
+function setMsgVisible() {
+  document.getElementById("msg").style.display = "block";
+  document.getElementById("working_indicator").style.display = "none";
+}
+
 function toggleVersioning() {
   var current_val = document.getElementById("version_tag").disabled;
 
@@ -78,13 +84,9 @@ function toggleVersioning() {
     document.getElementById("engineer_name").required = false;
     document.getElementById("version_tag").placeholder = "";
     document.getElementById("engineer_name").placeholder = "";
+    document.getElementById("version_tag").value = "";
+    document.getElementById("engineer_name").value = "";
   }
-}
-
-eel.expose(setMsgVisible);
-function setMsgVisible() {
-  document.getElementById("msg").style.display = "block";
-  document.getElementById("working_indicator").style.display = "none";
 }
 
 // SECTION: Form Validators
@@ -181,10 +183,10 @@ function JSONtoTable(json, location) {
     tr.appendChild(th);
   }
 
-  var th = document.createElement("th"); // TABLE HEADER.
-  th.setAttribute("scope", "col");
-  th.innerHTML = "Import";
-  tr.appendChild(th);
+  // var th = document.createElement("th"); // TABLE HEADER.
+  // th.setAttribute("scope", "col");
+  // th.innerHTML = "Import";
+  // tr.appendChild(th);
 
   // ADD JSON DATA TO THE TABLE AS ROWS.
   for (var i = 0; i < json.length; i++) {
@@ -198,22 +200,24 @@ function JSONtoTable(json, location) {
         tabCell.innerHTML = `<a id="history-${
           i + 1
         }" onclick="runHistory(${i})" type="button" class="btn btn btn-danger btn-sm"> Run </a>`;
+        tabCell.setAttribute("class", "align-middle");
 
+        // Saved
+      } else if (json[i][col[j]] == "import-history") {
         // Import History
-        tabCell = tr.insertCell(-1);
+        // tabCell = tr.insertCell(-1);
         tabCell.innerHTML = `<a id="history-import${
           i + 1
         }" onclick="importHistory(${i})" type="button" class="btn btn btn-danger btn-sm"> Import </a>`;
         tabCell.setAttribute("class", "align-middle");
-
-        // Saved
       } else if (json[i][col[j]] == "saved") {
         tabCell.innerHTML = `<a id="saved-${
           i + 1
         }" onclick="runSaved(${i})" type="button" class="btn btn btn-danger btn-sm"> Run </a>`;
-
+        tabCell.setAttribute("class", "align-middle");
+      } else if (json[i][col[j]] == "import-saved") {
         // Import Saved
-        tabCell = tr.insertCell(-1);
+        // tabCell = tr.insertCell(-1);
         tabCell.innerHTML = `<a id="history-import${
           i + 1
         }" onclick="importSaved(${i})" type="button" class="btn btn btn-danger btn-sm"> Import </a>`;
@@ -241,8 +245,10 @@ function setWorking() {
 async function convertVisio() {
   var jobData = getJobData();
 
-  eel.main(jobData);
-  setWorking();
+  if (jobData != null) {
+    eel.main(jobData);
+    setWorking();
+  }
 }
 
 // SECTION: Logger
@@ -293,7 +299,6 @@ function toggleVis(elementID) {
 }
 
 function show(elementID) {
-  console.log(elementID);
   document.getElementById(elementID).style.display = "block";
 }
 
@@ -307,7 +312,6 @@ function hide(elementID) {
 
 // Change Class of Button based onclick
 function menuSelect(elementID, showID) {
-  console.log(showID);
   var activeBtn = "btn btn-secondary btn-sm btn-danger";
   var inactiveBtn = "btn btn-secondary btn-sm";
 
@@ -332,7 +336,6 @@ function menuSelect(elementID, showID) {
   ids.forEach(function (item, index) {
     if (item == elementID) {
       document.getElementById(item).setAttribute("class", activeBtn);
-      console.log(showID);
       show(showID);
 
       if (elementID == "preview-btn") {
@@ -348,36 +351,46 @@ function setFromImport(importData) {
   document.getElementById("sys_name").value = importData["name"];
 
   dir_path = importData["directory"];
-  document.getElementById("dir_name").value = importData["directory"]
+  document.getElementById("dir_name").value = importData["directory"];
 
   document.getElementById("merge_subdirs").value = importData["includeSubDir"];
 
   cover_path = importData["coverSheet"];
-  document.getElementById("cover_name").value = importData["coverSheet"]
+  document.getElementById("cover_name").value = importData["coverSheet"];
 
-  document.getElementById("enable_tagging").value = importData["versionTagging"];
+  document.getElementById("enable_tagging").value =
+    importData["versionTagging"];
 
   if (importData["versionTagging"] == true) {
-    document.getElementById("engineer_name").value = importData["versionData"]["authorName"];
-    document.getElementById("version_tag").value = importData["versionData"]["versionTag"];
+    document.getElementById("engineer_name").value =
+      importData["versionData"]["authorName"];
+    document.getElementById("version_tag").value =
+      importData["versionData"]["versionTag"];
   }
-  document.getElementById("include_visio").checked = importData["fileTypes"]["include_visio"]
-  document.getElementById("include_excel").checked = importData["fileTypes"]["include_excel"]
-  document.getElementById("include_word").checked = importData["fileTypes"]["include_word"]
-  document.getElementById("include_powerpoint").checked = importData["fileTypes"]["include_powerpoint"]
-  document.getElementById("include_publisher").checked = importData["fileTypes"]["include_publisher"]
-  document.getElementById("include_outlook").checked = importData["fileTypes"]["include_outlook"]
-  document.getElementById("include_project").checked = importData["fileTypes"]["include_project"]
-  document.getElementById("include_openoffice").checked = importData["fileTypes"]["include_openoffice"]
+  document.getElementById("include_visio").checked =
+    importData["fileTypes"]["include_visio"];
+  document.getElementById("include_excel").checked =
+    importData["fileTypes"]["include_excel"];
+  document.getElementById("include_word").checked =
+    importData["fileTypes"]["include_word"];
+  document.getElementById("include_powerpoint").checked =
+    importData["fileTypes"]["include_powerpoint"];
+  document.getElementById("include_publisher").checked =
+    importData["fileTypes"]["include_publisher"];
+  document.getElementById("include_outlook").checked =
+    importData["fileTypes"]["include_outlook"];
+  document.getElementById("include_project").checked =
+    importData["fileTypes"]["include_project"];
+  document.getElementById("include_openoffice").checked =
+    importData["fileTypes"]["include_openoffice"];
 
-  document.getElementById("save_job").checked = importData["saveJob"]
+  document.getElementById("save_job").checked = importData["saveJob"];
 }
 
 // Set History Values, Called from Python
 eel.expose(setHistory);
 function setHistory(jobs) {
   var jobs = JSON.parse(jobs);
-  console.log(jobs);
 
   JSONtoTable(jobs, "history");
 }
@@ -387,28 +400,26 @@ function runHistory(index) {
 }
 
 async function importHistory(index) {
-  data = await eel.import_history(index)
-  setFromImport(data)
+  data = await eel.import_history(index);
+  setFromImport(data);
 }
 
 // Set Saved Values, Called from Python
 eel.expose(setSaved);
 function setSaved(jobs) {
   var jobs = JSON.parse(jobs);
-  console.log(jobs);
 
   JSONtoTable(jobs, "saved");
 }
 
 function runSaved(index) {
-  eel.run_saved(index)
+  eel.run_saved(index);
 }
 
 async function importSaved(index) {
-  data = await eel.import_saved(index)()
-  setFromImport(data)
+  data = await eel.import_saved(index)();
+  setFromImport(data);
 }
-
 
 // Calls Preview data from Python
 async function getPreview() {

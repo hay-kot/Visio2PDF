@@ -18,7 +18,7 @@ from reportlab.pdfgen import canvas
 
 
 # SECTION: Global Variables
-APP_VERSION = "v0.5"
+APP_VERSION = "v0.51"
 REPO_URL = "https://api.github.com/repos/hay-kot/Visio2PDF/releases/latest"
 
 CWD = Path(__file__).parent
@@ -300,7 +300,10 @@ class ConverterJob:
                 tagging = details["versionTagging"]
                 author = details["versionData"]["authorName"]
                 tag = details["versionData"]["versionTag"]
-                coversheet = os.path.isfile(details["coverSheet"])
+                try:
+                    coversheet = os.path.isfile(details["coverSheet"])
+                except TypeError:
+                    coversheet = ""
 
             data = {
                 "#": x,
@@ -312,6 +315,7 @@ class ConverterJob:
                 "Author": author,
                 "Tag": tag,
                 "Run": button,
+                "Import": f"import-{button}",
             }
             job_list.append(data)
 
@@ -330,7 +334,6 @@ class ConverterJob:
     @eel.expose
     def import_saved(index):
         data = ConverterJob.get_file(index, SAVED_JOBS_DIR)
-        print(data)
         return data
 
     @staticmethod
@@ -344,7 +347,6 @@ class ConverterJob:
     @eel.expose
     def import_history(index):
         data = ConverterJob.get_file(index, HISTORY_DIR)
-        print(data)
         return data
 
     @staticmethod
