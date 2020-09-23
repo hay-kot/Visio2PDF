@@ -1,0 +1,22 @@
+{
+    "name": "name used for Merged PDFs",
+    "directory": "/PATH/TO/DIRECTORY",
+    "includeSubDir": true,
+    "coverSheet": "/PATH/TO/COVERSHEET.doc",
+    "versionTagging": true,
+    "versionData": {
+        "authorName": "",
+        "versionTag": ""
+    },
+    "fileTypes": {
+        "visio": true,
+        "excel": false,
+        "word": false,
+        "powerpoint": false,
+        "publisher": false,
+        "outlook": false,
+        "project": false,
+        "openOffice": false
+      },
+    "saveJob": true
+}

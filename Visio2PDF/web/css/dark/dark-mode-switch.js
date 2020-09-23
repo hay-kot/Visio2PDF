@@ -18,9 +18,11 @@
       if (darkSwitch.checked) {
         document.body.setAttribute("data-theme", "dark");
         localStorage.setItem("darkSwitch", "dark");
+        eel.write_settings({ defaultMode: "dark" })
       } else {
         document.body.removeAttribute("data-theme");
         localStorage.removeItem("darkSwitch");
+        eel.write_settings({ defaultMode: "light" })
       }
     }
   }

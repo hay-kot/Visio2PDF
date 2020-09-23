@@ -1,0 +1,22 @@
+{
+    "name": "Hayden",
+    "directory": "D:/Programming/Lab/VisioFiles",
+    "includeSubDir": true,
+    "coverSheet": "D:\\Programming\\Lab\\VisioFiles\\coversheet.docx",
+    "versionTagging": false,
+    "versionData": {
+        "authorName": "Hayden",
+        "versionTag": "v1.1"
+    },
+    "fileTypes": {
+        "visio": true,
+        "excel": false,
+        "word": false,
+        "powerpoint": false,
+        "publisher": false,
+        "outlook": false,
+        "project": false,
+        "openOffice": false
+    },
+    "saveJob": true
+}

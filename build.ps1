@@ -1,6 +1,6 @@
 ./venv/Scripts/Activate.ps1
 
-$Version = "v0.41"
+$Version = "v0.5"
 $ProjName = "Visio2PDF"
 $Name = "$ProjName $Version"
 $BuildDir = "./dist"
@@ -10,6 +10,7 @@ $ArchivePath = "$BuildDir/$Name"
 pyinstaller --noconfirm --windowed `
     --name $Name `
     --add-data="./$ProjName/web/;./web" `
+    --add-data="./$ProjName/settings/;./settings" `
     --add-binary="./$ProjName/OfficeToPDF.exe;." `
     --icon="./$ProjName/web/favicon.ico" `
     ./$ProjName/$ProjName.py

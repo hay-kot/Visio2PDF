@@ -33,10 +33,19 @@
   margin-right: 5px;
 }
 
-.btn-outline-danger {
+/* .browse {
   margin-left: -22px;
-}
+} */
 
 .log {
   padding-bottom: 10px;
+}
+
+label {
+  margin-bottom: -4px;
+}
+
+.browse {
+  margin-top: 24px;
+  margin-left: -9px;
 }

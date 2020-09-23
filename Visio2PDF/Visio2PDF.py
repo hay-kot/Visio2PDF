@@ -1,6 +1,5 @@
 import json
 import os
-import random
 import subprocess
 import urllib.request
 from datetime import datetime
@@ -10,7 +9,6 @@ from tkinter import Tk, filedialog
 
 import eel
 from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter
-from PyPDF2.generic import Bookmark
 from reportlab.lib.colors import red
 from reportlab.lib.pagesizes import landscape
 from reportlab.pdfgen import canvas
@@ -20,11 +18,18 @@ from reportlab.pdfgen import canvas
 
 
 # SECTION: Global Variables
-APP_VERSION = "v0.41"
-CWD = Path(__file__).parent
-EXTERNAL_CONVERTER = os.path.join(CWD, "OfficeToPDF.exe")
-PDF_DIR = "PDFs"
+APP_VERSION = "v0.5"
 REPO_URL = "https://api.github.com/repos/hay-kot/Visio2PDF/releases/latest"
+
+CWD = Path(__file__).parent
+SETTINGS = os.path.join(CWD, "settings", "settings.json")
+HISTORY_DIR = os.path.join(CWD, "settings", "history")
+BATCH_JOBS_DIR = os.path.join(CWD, "settings", "saved-jobs")
+SAVED_JOBS_DIR = os.path.join(CWD, "settings", "saved-jobs")
+
+EXTERNAL_CONVERTER = os.path.join(CWD, "OfficeToPDF.exe")
+
+PDF_DIR = "PDFs"
 
 # !SECTION: Global Variables
 
@@ -39,6 +44,24 @@ def get_app_version():
         up_to_date = "False"
 
     return up_to_date, repo_version
+
+
+@eel.expose
+def write_settings(settings: dict):
+    with open(SETTINGS, "r") as f:
+        saved_settings = json.load(f)
+
+        saved_settings.update(settings)
+
+    with open(SETTINGS, "w") as f:
+        f.write(json.dumps(saved_settings))
+
+
+def load_settings():
+    with open(SETTINGS, "r") as f:
+        settings_dict = json.load(f)
+
+    eel.setSettings(settings_dict)
 
 
 @eel.expose
@@ -60,14 +83,6 @@ def btn_SelectCoverSheet():
 
 
 @eel.expose
-def pick_file(folder):
-    if os.path.isdir(folder):
-        return random.choice(os.listdir(folder))
-    else:
-        return "Not valid folder"
-
-
-@eel.expose
 def find_cover(dir_path):
     dir_path = Path(dir_path)
 
@@ -77,7 +92,7 @@ def find_cover(dir_path):
         if "cover sheet" in files.lower():
             return os.path.join(dir_path, files)
 
-    return "none"
+    return
 
 
 def log(message):
@@ -129,45 +144,39 @@ class Watermark:
             pdf_writer.write(out)
 
 
-class ConverterTarget:
-    def __init__(
-        self,
-        main_dir: str,
-        coversheet: str,
-        merged_name: str,
-        tag: bool,
-        include_subdir: bool,
-        author_name: str,
-        v_tag: str,
-        filetypes: dict,
-    ):
-        # Main Parameters
-        self.main_dir = Path(main_dir)
-        self.dir_list = [self.main_dir]
-        self.name = merged_name
-        self.include_tagging = tag
-        self.include_subdir = include_subdir
+class ConverterJob:
+    def __init__(self, job_data: dict):
 
-        if os.path.isfile(coversheet):
-            self.coversheet = Path(coversheet)
+        # Main Parameters
+        self.job_data = job_data
+        self.job_dir = Path(job_data["directory"])
+        self.dir_list = [self.job_dir]
+        self.name = job_data["name"]
+        self.include_tagging = job_data["versionTagging"]
+        self.include_subdir = job_data["includeSubDir"]
+
+        try:
+            self.coversheet = Path(job_data["coverSheet"])
+        except:
+            pass
 
         # Optional Version Parameters
         if self.include_tagging:
-            self.author_name = author_name
-            self.tag = v_tag
+            self.author_name = job_data["versionData"]["authorName"]
+            self.tag = job_data["versionData"]["versionTag"]
 
-            self.watermark = Watermark(author_name, tag, self.name)
-            self.save_dir = os.path.join(main_dir, PDF_DIR, self.tag)
+            self.watermark = Watermark(self.author_name, self.tag, self.name)
+            self.save_dir = os.path.join(self.job_dir, PDF_DIR, self.tag)
         else:
             dateTimeObj = datetime.now()
             timestampstr = dateTimeObj.strftime("%m-%d-%Y")
-            self.save_dir = os.path.join(main_dir, PDF_DIR, timestampstr)
+            self.save_dir = os.path.join(self.job_dir, PDF_DIR, timestampstr)
 
         check_create_dir(self.save_dir)
 
         if self.include_subdir:
 
-            for directories in os.walk(self.main_dir):
+            for directories in os.walk(self.job_dir):
                 if PDF_DIR in directories[0]:
                     continue
                 else:
@@ -195,34 +204,169 @@ class ConverterTarget:
         PROJECT = [".mpp"]
         OPENOFFICE = [".odt", ".odp", ".ods"]
 
-        if filetypes["visio"]:
+        if job_data["fileTypes"]["visio"]:
             self.file_types.extend(VISIO)
 
-        if filetypes["word"]:
+        if job_data["fileTypes"]["word"]:
             self.file_types.extend(WORD)
 
-        if filetypes["excel"]:
+        if job_data["fileTypes"]["excel"]:
             self.file_types.extend(EXCEL)
 
-        if filetypes["powerpoint"]:
+        if job_data["fileTypes"]["powerpoint"]:
             self.file_types.extend(POWERPOINT)
 
-        if filetypes["project"]:
+        if job_data["fileTypes"]["project"]:
             self.file_types.extend(PROJECT)
 
-        if filetypes["publisher"]:
+        if job_data["fileTypes"]["publisher"]:
             self.file_types.extend(PUBLISHER)
 
-        if filetypes["openOffice"]:
+        if job_data["fileTypes"]["openOffice"]:
             self.file_types.extend(OPENOFFICE)
 
-        if filetypes["outlook"]:
+        if job_data["fileTypes"]["outlook"]:
             self.file_types.extend(OUTLOOK)
+
+        if job_data["saveJob"]:
+            ConverterJob.save_job(job_data)
+
+    @classmethod
+    def fromJSON(cls, json):
+        cls(json.loads(json))
+
+    @staticmethod
+    def save_job(job_data):
+        save_data = json.dumps(job_data, indent=4)
+
+        save_file = Path(os.path.join(SAVED_JOBS_DIR, job_data["name"] + ".json"))
+
+        with open(save_file, "w") as f:
+            f.write(save_data)
+
+    def log_job(self):
+        # History Cleanup
+        history_list = os.listdir(HISTORY_DIR)
+
+        if len(history_list) >= 4:
+            job_history = []
+
+            for file in history_list:
+                file = os.path.join(HISTORY_DIR, file)
+                job_history.append(file)
+
+            job_history = sorted(job_history, key=os.path.getctime)
+
+            while len(job_history) >= 4:
+                os.remove(os.path.join(HISTORY_DIR, job_history[0]))
+                del job_history[0]
+
+        # Actual Logging
+        save_data = json.dumps(self.job_data, indent=4)
+
+        dateTimeObj = datetime.now()
+        timestampstr = dateTimeObj.strftime("%d-%b_%H-%M-%S")
+
+        save_file = os.path.join(HISTORY_DIR, f"{timestampstr} {self.name}.json")
+
+        with open(save_file, "w") as f:
+            f.write(save_data)
+
+    @staticmethod
+    @eel.expose
+    def get_history():
+        jobs = ConverterJob.get_job_folder(HISTORY_DIR, "history")
+        eel.setHistory(jobs)
+
+    @staticmethod
+    @eel.expose
+    def get_saved():
+        jobs = ConverterJob.get_job_folder(SAVED_JOBS_DIR, "saved")
+        eel.setSaved(jobs)
+
+    @staticmethod
+    @eel.expose
+    def get_job_folder(dir: Path, button: str):
+        job_list = []
+        x = 1
+
+        for f in os.listdir(dir):
+            with open(os.path.join(dir, f), "r") as f:
+                details = json.load(f)
+
+                name = details["name"]
+                directory = details["directory"]
+                sub_dir = details["includeSubDir"]
+                tagging = details["versionTagging"]
+                author = details["versionData"]["authorName"]
+                tag = details["versionData"]["versionTag"]
+                coversheet = os.path.isfile(details["coverSheet"])
+
+            data = {
+                "#": x,
+                "Name": name,
+                "Directory": directory,
+                "Include Subdirectories": sub_dir,
+                "Cover Sheet": coversheet,
+                "Tagging": tagging,
+                "Author": author,
+                "Tag": tag,
+                "Run": button,
+            }
+            job_list.append(data)
+
+            x += 1
+
+        return json.dumps(job_list)
+
+    @staticmethod
+    @eel.expose
+    def run_saved(index):
+        data = ConverterJob.get_file(index, SAVED_JOBS_DIR)
+        eel.setWorking()
+        main(data)
+
+    @staticmethod
+    @eel.expose
+    def import_saved(index):
+        data = ConverterJob.get_file(index, SAVED_JOBS_DIR)
+        print(data)
+        return data
+
+    @staticmethod
+    @eel.expose
+    def run_history(index):
+        data = ConverterJob.get_file(index, HISTORY_DIR)
+        eel.setWorking()
+        main(data)
+
+    @staticmethod
+    @eel.expose
+    def import_history(index):
+        data = ConverterJob.get_file(index, HISTORY_DIR)
+        print(data)
+        return data
+
+    @staticmethod
+    @eel.expose
+    def get_file(index, dir):
+        jobs = []
+
+        for file in os.listdir(dir):
+            file = os.path.join(dir, file)
+            jobs.append(file)
+
+        jobs = sorted(jobs, key=os.path.getctime)
+
+        with open(jobs[index], "r") as f:
+            data = json.load(f)
+
+        return data
 
 
 class Convert:
     @staticmethod
-    def coversheet(target: ConverterTarget):
+    def coversheet(target: ConverterJob):
         cover_path = "not a file"
         if os.path.isfile(target.coversheet):
             log(f"Setting Coversheet: {target.coversheet}")
@@ -237,7 +381,7 @@ class Convert:
             log("No Coversheet included, Skipping...")
 
     @staticmethod
-    def files(target: ConverterTarget):
+    def files(target: ConverterJob):
         for dir in target.dir_list:
             save_dir = os.path.join(target.save_dir, os.path.basename(dir))
             for files in os.listdir(dir):
@@ -264,7 +408,7 @@ class Convert:
                         sleep(0.5)
 
     @staticmethod
-    def preview(target: ConverterTarget):
+    def preview(target: ConverterJob):
         preview_files = []
         x = 1
 
@@ -289,7 +433,7 @@ class Convert:
         return json.dumps(preview_files)
 
 
-def merge_pdfs(target: ConverterTarget):
+def merge_pdfs(target: ConverterJob):
     log("Merging PDFs...")
 
     merger = PdfFileMerger()
@@ -336,75 +480,44 @@ def merge_pdfs(target: ConverterTarget):
 
     log(f"PDFs Merged: {target.name}.pdf")
 
+    target.log_job()
+
     return final_pdf_path
 
 
 @eel.expose
-def getPreview(
-    visio_dir,
-    coversheet,
-    sys_name="Merged",
-    insert_version_tag=False,
-    version_tag=None,
-    author_name="undefined",
-    include_subdir=False,
-    filetypes=None,
-):
+def getPreview(job_data: dict):
 
-    target = ConverterTarget(
-        visio_dir,
-        coversheet,
-        sys_name,
-        insert_version_tag,
-        include_subdir,
-        author_name,
-        version_tag,
-        filetypes,
-    )
+    job = ConverterJob(job_data)
 
-    return Convert.preview(target)
+    return Convert.preview(job)
 
 
 @eel.expose
-def main(
-    visio_dir,
-    coversheet,
-    sys_name="Merged",
-    insert_version_tag=False,
-    version_tag=None,
-    author_name="undefined",
-    include_subdir=False,
-    filetypes=None,
-):
+def main(jobData: dict):
     log("Starting...")
 
-    target = ConverterTarget(
-        visio_dir,
-        coversheet,
-        sys_name,
-        insert_version_tag,
-        include_subdir,
-        author_name,
-        version_tag,
-        filetypes,
-    )
+    job = ConverterJob(jobData)
 
-    Convert.files(target)
+    Convert.files(job)
 
     try:
-        if target.coversheet:
-            Convert.coversheet(target)
+        if job.coversheet:
+            Convert.coversheet(job)
     except:
         pass
 
     # Merge all PDFs into one File
-    merged_pdf = merge_pdfs(target)
+    merged_pdf = merge_pdfs(job)
 
     # Final Cleanup
     log("Process Complete")
 
     eel.setMsgVisible()
     eel.toggleButtons()
+
+    ConverterJob.get_history()
+    ConverterJob.get_saved()
 
     os.startfile(merged_pdf)
 
@@ -415,7 +528,10 @@ if __name__ == "__main__":
     eel.setVersion(APP_VERSION)
 
     # Update Version Header
+    load_settings()
+    ConverterJob.get_history()
+    ConverterJob.get_saved()
     up_to_date, _repo_version = get_app_version()
     eel.setRepoVersionNotify(up_to_date)
 
-    eel.start("main.html", size=(570, 800), port=0)
+    eel.start("main.html", size=(1080, 725), port=0)

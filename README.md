@@ -2,6 +2,8 @@
 
 This is a small GUI used for batch converting Microsoft Visio files or others and packagin into a single PDF. Currently only supports 11x17 visio files for watermarks. The primary use case for this for updating and versioning PDF copies of visio drawings updated in the field to keep a record of changes made.
 
+**DEMO for V0.41**
+
 ![Alt Text](./images/demo-v0.4.gif)
 
 ## Features
@@ -11,14 +13,14 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 - Supports various file types (see advanced settings)
 - Page Order Preview
 - Auto bookmark creation based off folder structure
+- History and Rerun Option
+- Save Jobs
+- <s>Import Function</s> **Currently Broken**
 - Optional Coversheet (should work with any MS Office file)
 - Optional version tagging with watermark
 
 ## TODO's
 
-- Darkmode / Save Settings
-- History / Rerun Options
-- SavedProfiles
 - Batch Jobs - Run mutiple profiles with one command
 - O&M / Submittal Packaging Option.
 
@@ -30,7 +32,7 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 
 [Download](https://github.com/hay-kot/Visio2PDF/releases/tag/v0.4) and unzip the archive, locate Visio2PDF.exe and execute.
 
-![](./images/ui-v0.4.png)
+![](./images/ui-v0.5.png)
 
 ### Using the Application
 
