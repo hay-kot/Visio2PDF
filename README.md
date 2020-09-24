@@ -29,7 +29,7 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 - Auto bookmark creation based off folder structure
 - History and Rerun Option
 - Save Jobs
-- <s>Import Function</s> **Currently Broken**
+- Import Function
 - Optional Coversheet (should work with any MS Office file)
 - Optional version tagging with watermark
 
@@ -46,7 +46,7 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 
 [Download](https://github.com/hay-kot/Visio2PDF/releases/tag/v0.4) and unzip the archive, locate Visio2PDF.exe and execute.
 
-![](./images/ui-v0.5.png)
+![](./images/ui-v0.6.0.png)
 
 ### Using the Application
 

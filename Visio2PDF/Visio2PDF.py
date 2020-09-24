@@ -20,10 +20,11 @@ from reportlab.pdfgen import canvas
 
 
 # SECTION: Global Variables
-APP_VERSION = "v0.5.1"
+APP_VERSION = "v0.6.0"
 REPO_URL = "https://api.github.com/repos/hay-kot/Visio2PDF/releases/latest"
 
 CWD = Path(__file__).parent
+SETTINGS_DIR = os.path.join(CWD, "settings")
 SETTINGS = os.path.join(CWD, "settings", "settings.json")
 HISTORY_DIR = os.path.join(CWD, "settings", "history")
 BATCH_JOBS_DIR = os.path.join(CWD, "settings", "saved-jobs")
@@ -34,6 +35,19 @@ EXTERNAL_CONVERTER = os.path.join(CWD, "OfficeToPDF.exe")
 PDF_DIR = "PDFs"
 
 # !SECTION: Global Variables
+
+
+def setup():
+    dirs = [SETTINGS_DIR, HISTORY_DIR, BATCH_JOBS_DIR, SAVED_JOBS_DIR]
+
+    for dir in dirs:
+        check_create_dir(dir)
+
+    if not os.path.isfile(SETTINGS):
+        defaults = {"defaultMode": "light"}
+
+        with open(SETTINGS, "w") as f:
+            f.write(json.dumps(defaults, indent=4))
 
 
 def get_app_version():
@@ -106,7 +120,7 @@ def log(message):
 def check_create_dir(dir_path: Path):
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
-        log(f"Creating Save Directory: {dir_path}")
+        log(f"Creating Directory: {dir_path}")
 
 
 class Watermark:
@@ -506,7 +520,7 @@ def getPreview(job_data: dict):
 @eel.expose
 def main(jobData: dict):
     log("Starting...")
-    
+
     eel.setWorking()
 
     job = ConverterJob(jobData)
@@ -536,6 +550,7 @@ def main(jobData: dict):
 
 # Functions to call prior to eel running
 def pre_start():
+    setup()
     load_settings()
     ConverterJob.get_history()
     ConverterJob.get_saved()

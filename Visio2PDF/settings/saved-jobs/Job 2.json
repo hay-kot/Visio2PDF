@@ -1,0 +1,24 @@
+{
+    "name": "Job 2",
+    "directory": "D:\\Programming\\Lab\\visio_files",
+    "includeSubDir": false,
+    "coverSheet": "D:\\Programming\\Lab\\visio_files\\A2.80 - Application CoverSheet.docx",
+    "versionTagging": false,
+    "versionData": {
+        "authorName": "",
+        "versionTag": ""
+    },
+    "fileTypes": {
+        "visio": true,
+        "excel": false,
+        "word": false,
+        "powerpoint": false,
+        "publisher": false,
+        "outlook": false,
+        "project": false,
+        "openOffice": false
+    },
+    "saveJob": true,
+    "savePath": "d:\\Programming\\Windows\\Visio2PDF\\Visio2PDF\\settings\\saved-jobs\\Job 2.json",
+    "lastRan": "23-Sep 20:06"
+}
