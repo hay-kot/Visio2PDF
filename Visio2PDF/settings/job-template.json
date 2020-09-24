@@ -20,5 +20,20 @@
     },
     "saveJob": true,
     "savePath": "/PATH/TO/SAVE/FILE.json",
-    "lastRan": "Human Readable Timestamp"
+    "lastRan": "Human Readable Timestamp",
+    "tableOfContents": {
+        "title": "description",
+        "data": [
+            {
+                "page": 1,
+                "bookmark": "BookmarkSection",
+                "title": "Page Title"
+            },
+            {
+                "page": 2,
+                "bookmark": "BookmarkSection",
+                "title": "Page Title"
+            }
+        ]
+    }
 }
