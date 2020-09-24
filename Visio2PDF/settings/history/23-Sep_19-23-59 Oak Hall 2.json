@@ -1,0 +1,24 @@
+{
+    "name": "Oak Hall 2",
+    "directory": "D:\\Programming\\Lab\\VisioFiles",
+    "includeSubDir": false,
+    "coverSheet": "D:\\Programming\\Lab\\VisioFiles\\coversheet.docx",
+    "versionTagging": true,
+    "versionData": {
+        "authorName": "Hayden",
+        "versionTag": "v1.1"
+    },
+    "fileTypes": {
+        "visio": true,
+        "excel": false,
+        "word": false,
+        "powerpoint": false,
+        "publisher": false,
+        "outlook": false,
+        "project": false,
+        "openOffice": false
+    },
+    "saveJob": true,
+    "savePath": "d:\\Programming\\Projects\\Visio2PDF\\Visio2PDF\\settings\\saved-jobs\\Oak Hall 2.json",
+    "lastRan": "23-Sep 19:23"
+}

@@ -174,6 +174,9 @@ class ConverterJob:
             timestampstr = dateTimeObj.strftime("%m-%d-%Y")
             self.save_dir = os.path.join(self.job_dir, PDF_DIR, timestampstr)
 
+            self.author_name = ""
+            self.tag = ""
+
         check_create_dir(self.save_dir)
 
         if self.include_subdir:
@@ -186,65 +189,95 @@ class ConverterJob:
 
         self.file_types = []
 
-        # Create File Type List
+        # Supported File Types
         VISIO = [".vsd", ".vsdx", ".vsdm", ".svg"]
         WORD = [".doc", ".dot", ".docx", ".dotx", ".docm", ".dotm", ".rtf", ".wpd"]
         EXCEL = [".xls", ".xlsx", ".xlsm", ".xlsb", ".xlt", ".xltx", ".xltm", ".cs"]
-        POWERPOINT = [
-            ".ppt",
-            ".pptx",
-            ".pptm",
-            ".pps",
-            ".ppsx",
-            ".ppsm",
-            ".pot",
-            ".potx",
-            ".potm",
-        ]
+        POWERPOINT = [".ppt", ".pptx", ".pps", ".ppsx", ".pot", ".potx"]
         PUBLISHER = [".pub"]
         OUTLOOK = [".msg", ".vcf", ".ics"]
         PROJECT = [".mpp"]
         OPENOFFICE = [".odt", ".odp", ".ods"]
 
-        if job_data["fileTypes"]["visio"]:
+        #
+        self.visio = job_data["fileTypes"]["visio"]
+        self.word = job_data["fileTypes"]["word"]
+        self.excel = job_data["fileTypes"]["excel"]
+        self.powerpoint = job_data["fileTypes"]["powerpoint"]
+        self.project = job_data["fileTypes"]["project"]
+        self.publisher = job_data["fileTypes"]["publisher"]
+        self.openoffice = job_data["fileTypes"]["openOffice"]
+        self.outlook = job_data["fileTypes"]["outlook"]
+
+        if self.visio:
             self.file_types.extend(VISIO)
 
-        if job_data["fileTypes"]["word"]:
+        if self.word:
             self.file_types.extend(WORD)
 
-        if job_data["fileTypes"]["excel"]:
+        if self.excel:
             self.file_types.extend(EXCEL)
 
-        if job_data["fileTypes"]["powerpoint"]:
+        if self.powerpoint:
             self.file_types.extend(POWERPOINT)
 
-        if job_data["fileTypes"]["project"]:
+        if self.project:
             self.file_types.extend(PROJECT)
 
-        if job_data["fileTypes"]["publisher"]:
+        if self.publisher:
             self.file_types.extend(PUBLISHER)
 
-        if job_data["fileTypes"]["openOffice"]:
+        if self.openoffice:
             self.file_types.extend(OPENOFFICE)
 
-        if job_data["fileTypes"]["outlook"]:
+        if self.outlook:
             self.file_types.extend(OUTLOOK)
 
+        self.lastran = job_data["lastRan"]
+
+        dateTimeObj = datetime.now()
+        timestampstr = dateTimeObj.strftime("%d-%b %H:%M")
+        self.timestamp = timestampstr
+
+        self.savepath = ""
+
+        self.include_saving = job_data["saveJob"]
         if job_data["saveJob"]:
-            ConverterJob.save_job(job_data)
+            self.save_job()
 
-    @classmethod
-    def fromJSON(cls, json):
-        cls(json.loads(json))
+    def returnDICT(self):
+        return {
+            "name": self.name,
+            "directory": str(self.job_dir),
+            "includeSubDir": self.include_subdir,
+            "coverSheet": str(self.coversheet),
+            "versionTagging": self.include_tagging,
+            "versionData": {"authorName": self.author_name, "versionTag": self.tag},
+            "fileTypes": {
+                "visio": self.visio,
+                "excel": self.excel,
+                "word": self.word,
+                "powerpoint": self.powerpoint,
+                "publisher": self.publisher,
+                "outlook": self.outlook,
+                "project": self.project,
+                "openOffice": self.openoffice,
+            },
+            "saveJob": self.include_saving,
+            "savePath": str(self.savepath),
+            "lastRan": self.timestamp,
+        }
 
-    @staticmethod
-    def save_job(job_data):
-        save_data = json.dumps(job_data, indent=4)
+    def returnJSON(self):
+        return json.dumps(self.returnDICT(), indent=4)
 
-        save_file = Path(os.path.join(SAVED_JOBS_DIR, job_data["name"] + ".json"))
+    def save_job(self):
+        self.savepath = Path(os.path.join(SAVED_JOBS_DIR, self.name + ".json"))
 
-        with open(save_file, "w") as f:
-            f.write(save_data)
+        data = self.returnJSON()
+
+        with open(self.savepath, "w") as f:
+            f.write(data)
 
     def log_job(self):
         # History Cleanup
@@ -264,7 +297,7 @@ class ConverterJob:
                 del job_history[0]
 
         # Actual Logging
-        save_data = json.dumps(self.job_data, indent=4)
+        save_data = self.returnJSON()
 
         dateTimeObj = datetime.now()
         timestampstr = dateTimeObj.strftime("%d-%b_%H-%M-%S")
@@ -296,14 +329,6 @@ class ConverterJob:
             with open(os.path.join(dir, job), "r") as f:
                 details = json.load(f)
 
-                name = details["name"]
-                directory = details["directory"]
-                sub_dir = details["includeSubDir"]
-                tagging = details["versionTagging"]
-                author = details["versionData"]["authorName"]
-                tag = details["versionData"]["versionTag"]
-                path = (os.path.join(dir, job))
-                        
                 try:
                     coversheet = os.path.isfile(details["coverSheet"])
                 except TypeError:
@@ -311,18 +336,17 @@ class ConverterJob:
 
             data = {
                 "#": x,
-                "Name": name,
-                "Directory": directory,
-                "Include Subdirectories": sub_dir,
+                "Name": details["name"],
+                "Last Ran": details["lastRan"],
+                "Directory": details["directory"],
+                "Subdirectories": details["includeSubDir"],
                 "Cover Sheet": coversheet,
-                "Tagging": tagging,
-                "Author": author,
-                "Tag": tag,
+                "Tagging": details["versionTagging"],
+                "Author": details["versionData"]["authorName"],
+                "Tag": details["versionData"]["versionTag"],
                 "Run": button,
                 "Import": f"import-{button}",
-                "meta": {
-                    "path": path
-                }
+                "meta": {"path": (os.path.join(dir, job)), "jobType": button},
             }
             job_list.append(data)
 
@@ -332,42 +356,20 @@ class ConverterJob:
 
     @staticmethod
     @eel.expose
-    def run_saved(index):
-        data = ConverterJob.get_file(index, SAVED_JOBS_DIR)
-        eel.setWorking()
+    def run_file(job_path: str):
+        job_path = Path(job_path)
+
+        with open(job_path, "r") as f:
+            data = json.load(f)
+
         main(data)
 
     @staticmethod
     @eel.expose
-    def import_saved(index):
-        data = ConverterJob.get_file(index, SAVED_JOBS_DIR)
-        return data
+    def import_file(job_path: str):
+        job_path = Path(job_path)
 
-    @staticmethod
-    @eel.expose
-    def run_history(index):
-        data = ConverterJob.get_file(index, HISTORY_DIR)
-        eel.setWorking()
-        main(data)
-
-    @staticmethod
-    @eel.expose
-    def import_history(index):
-        data = ConverterJob.get_file(index, HISTORY_DIR)
-        return data
-
-    @staticmethod
-    @eel.expose
-    def get_file(index, dir):
-        jobs = []
-
-        for file in os.listdir(dir):
-            file = os.path.join(dir, file)
-            jobs.append(file)
-
-        jobs = sorted(jobs, key=os.path.getctime)
-
-        with open(jobs[index], "r") as f:
+        with open(job_path, "r") as f:
             data = json.load(f)
 
         return data
@@ -496,7 +498,6 @@ def merge_pdfs(target: ConverterJob):
 
 @eel.expose
 def getPreview(job_data: dict):
-
     job = ConverterJob(job_data)
 
     return Convert.preview(job)
@@ -505,6 +506,8 @@ def getPreview(job_data: dict):
 @eel.expose
 def main(jobData: dict):
     log("Starting...")
+    
+    eel.setWorking()
 
     job = ConverterJob(jobData)
 
@@ -531,17 +534,20 @@ def main(jobData: dict):
     os.startfile(merged_pdf)
 
 
-if __name__ == "__main__":
-    eel_path = os.path.join(CWD, "web")
-    eel.init(eel_path)
-    eel.setVersion(APP_VERSION)
-
-    # Update Version Header
+# Functions to call prior to eel running
+def pre_start():
     load_settings()
     ConverterJob.get_history()
     ConverterJob.get_saved()
     up_to_date, _repo_version = get_app_version()
     eel.setRepoVersionNotify(up_to_date)
 
-    eel.start("main.html", size=(1080, 725), port=0)
 
+if __name__ == "__main__":
+    eel_path = os.path.join(CWD, "web")
+    eel.init(eel_path)
+    eel.setVersion(APP_VERSION)
+
+    pre_start()
+
+    eel.start("main.html", size=(1080, 725), port=0)

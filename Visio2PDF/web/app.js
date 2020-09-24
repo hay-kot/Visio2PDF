@@ -33,7 +33,7 @@ function setRepoVersionNotify(upToDate) {
   }
 }
 
-// !SECTION: Version Information
+// !SECTION:
 
 // SECTION: Folder / Cover Selection
 async function getFolder() {
@@ -70,7 +70,8 @@ function setMsgVisible() {
 }
 
 function toggleVersioning() {
-  var current_val = document.getElementById("version_tag").disabled;
+  console.log("Toggle Called");
+  var current_val = document.getElementById("enable_tagging").checked;
 
   if (current_val === true) {
     document.getElementById("version_tag").disabled = false;
@@ -155,6 +156,8 @@ function getJobData() {
       openOffice: document.getElementById("include_openoffice").checked,
     },
     saveJob: document.getElementById("save_job").checked,
+    savePath: "",
+    lastRan: "",
   };
 
   return jobData;
@@ -193,7 +196,6 @@ function JSONtoTable(json, location) {
     tr = table.insertRow(-1);
 
     for (var j = 0; j < col.length; j++) {
-      console.log(col[j]);
       if (col[j] != "meta") {
         var tabCell = tr.insertCell(-1);
 
@@ -245,7 +247,6 @@ async function convertVisio() {
 
   if (jobData != null) {
     eel.main(jobData);
-    setWorking();
   }
 }
 
@@ -345,6 +346,7 @@ function menuSelect(elementID, showID) {
   });
 }
 
+// Sets Import Data in DOM
 function setFromImport(importData) {
   document.getElementById("sys_name").value = importData["name"];
 
@@ -356,31 +358,31 @@ function setFromImport(importData) {
   cover_path = importData["coverSheet"];
   document.getElementById("cover_name").value = importData["coverSheet"];
 
-  document.getElementById("enable_tagging").value =
+  document.getElementById("enable_tagging").checked =
     importData["versionTagging"];
 
-  if (importData["versionTagging"] == true) {
-    document.getElementById("engineer_name").value =
-      importData["versionData"]["authorName"];
-    document.getElementById("version_tag").value =
-      importData["versionData"]["versionTag"];
-  }
-  document.getElementById("include_visio").checked =
-    importData["fileTypes"]["include_visio"];
+  document.getElementById("engineer_name").value =
+    importData["versionData"]["authorName"];
+  document.getElementById("version_tag").value =
+    importData["versionData"]["versionTag"];
+
+  toggleVersioning();
+
+  document.getElementById("include_visio").checked = importData.fileTypes.visio;
   document.getElementById("include_excel").checked =
-    importData["fileTypes"]["include_excel"];
+    importData["fileTypes"]["excel"];
   document.getElementById("include_word").checked =
-    importData["fileTypes"]["include_word"];
+    importData["fileTypes"]["word"];
   document.getElementById("include_powerpoint").checked =
-    importData["fileTypes"]["include_powerpoint"];
+    importData["fileTypes"]["ipowerpoint"];
   document.getElementById("include_publisher").checked =
-    importData["fileTypes"]["include_publisher"];
+    importData["fileTypes"]["publisher"];
   document.getElementById("include_outlook").checked =
-    importData["fileTypes"]["include_outlook"];
+    importData["fileTypes"]["outlook"];
   document.getElementById("include_project").checked =
-    importData["fileTypes"]["include_project"];
+    importData["fileTypes"]["project"];
   document.getElementById("include_openoffice").checked =
-    importData["fileTypes"]["include_openoffice"];
+    importData["fileTypes"]["openoffice"];
 
   document.getElementById("save_job").checked = importData["saveJob"];
 }
@@ -389,23 +391,19 @@ function setFromImport(importData) {
 eel.expose(setHistory);
 function setHistory(jobs) {
   var jobs = JSON.parse(jobs);
-
   historyJSON = jobs;
-
   JSONtoTable(jobs, "history");
 }
 
 function runHistory(index) {
-  eel.run_history(index);
+  path = historyJSON[index]["meta"]["path"];
+  eel.run_file(path);
 }
 
 async function importHistory(index) {
-  data = await eel.import_history(index);
-
-  data = historyJSON[index];
-
+  path = historyJSON[index]["meta"]["path"];
+  data = await eel.import_file(path)();
   console.log(data);
-
   setFromImport(data);
 }
 
@@ -413,18 +411,19 @@ async function importHistory(index) {
 eel.expose(setSaved);
 function setSaved(jobs) {
   var jobs = JSON.parse(jobs);
-
   savedJSON = jobs;
-
   JSONtoTable(jobs, "saved");
 }
 
 function runSaved(index) {
-  eel.run_saved(index);
+  path = savedJSON[index]["meta"]["path"];
+  eel.run_file(path);
 }
 
 async function importSaved(index) {
-  data = await eel.import_saved(index)();
+  path = savedJSON[index]["meta"]["path"];
+  data = await eel.import_file(path)();
+  console.log(data);
   setFromImport(data);
 }
 
@@ -433,8 +432,11 @@ async function getPreview() {
   var jobData = getJobData();
 
   previewData = await eel.getPreview(jobData)();
-
   previewData = JSON.parse(previewData);
 
   JSONtoTable(previewData, "preview");
 }
+
+var versioning = document.getElementById("enable_tagging");
+
+versioning.addEventListener("input", toggleVersioning);

@@ -17,9 +17,8 @@
         "outlook": false,
         "project": false,
         "openOffice": false
-      },
+    },
     "saveJob": true,
     "savePath": "/PATH/TO/SAVE/FILE.json",
-    "lastRan": "Human Readable Timestamp",
-    "jobType": "history or saved"
+    "lastRan": "Human Readable Timestamp"
 }
