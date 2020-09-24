@@ -29,7 +29,7 @@ This is a small GUI used for batch converting Microsoft Visio files or others an
 - Auto bookmark creation based off folder structure
 - History and Rerun Option
 - Save Jobs
-- Import Function
+- Import saved or recently run jobs
 - Optional Coversheet (should work with any MS Office file)
 - Optional version tagging with watermark
 
